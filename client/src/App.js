@@ -1,26 +1,19 @@
-import React from 'react';
+import React, { Component } from "react";
+import axios from 'axios';
 
-import Child from './Child.js' 
+class App extends Component {
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-      <Child />
-    </div>
-  );
+  componentDidMount()
+  {
+    fetch("/users").then(async (res)=> {
+      const text = await res.text()
+      console.log(text);
+    })
+  }
+
+  render() {
+    return <div>I'M READY TO USE THE BACK END APIS! :-)</div>;
+  }
 }
 
 export default App;
