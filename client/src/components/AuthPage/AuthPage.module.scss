@@ -1,0 +1,48 @@
+
+@import '../shared.scss';
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body
+{
+    background: url(https://images.pexels.com/photos/1070527/pexels-photo-1070527.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260);
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    .container
+    {
+        width: 100%;   
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: top;
+        
+        
+        @media screen and (min-height: 600px)
+        {
+            align-items: center;
+        }
+        .authForm
+        {
+            box-sizing: border-box;
+            position: absolute;
+            width: $break-small;        
+            padding: 30px 30px;
+            border-radius: 5px;
+            @media screen and (max-width: $break-small)
+            {
+                width: 100%;
+                min-height: 100vh;
+                border-radius: 0px;
+            }
+
+        }
+
+
+        
+    }
+    
+}
+
+
