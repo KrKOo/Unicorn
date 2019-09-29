@@ -3,8 +3,9 @@ const router = express.Router()
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  console.log("Users ")
-  res.send("Krookoooooooaasasdaaaaaaas")
+  console.log("Users ");
+  console.log(req.cookies['token']);
+  res.send(req.cookies['token']);
 });
 
 export default router

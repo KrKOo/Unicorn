@@ -13,7 +13,10 @@ class App extends Component {
 		this.state = {
 		}
 
-		this.socket = openSocket('http://localhost:8000');
+		this.socket = openSocket('http://localhost:9000');
+		this.socket.on('connect', function() {
+			console.log('check', this.socket);
+		});
 	}
 	componentDidMount() {
 		fetch("/users").then(async (res) => {

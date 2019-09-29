@@ -4,26 +4,24 @@ import path from 'path'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import socketIO from 'socket.io'
-import session from 'express-session'
+//import dotenv from 'dotenv'
+
+require('dotenv').config({ path: ".env" });
+
 //ROUTES
 import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
-
 //MODULES
 import sockets from './modules/sockets'
+
+//dotenv.config();
 
 const app = express();
 const server = http.createServer(app)
 const io = sockets(socketIO(server));
 
-const port = 8000;
-
-app.use(session({
-	secret: 'secret',
-	resave: true,
-	saveUninitialized: true
-}));
+const port = 9000;
 
 app.use(logger('dev'));
 app.use(express.json());

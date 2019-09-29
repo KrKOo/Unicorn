@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 
+import Map from '../Map'
+
 class Chat extends Component{
     constructor(props)
     {
@@ -61,6 +63,8 @@ class Chat extends Component{
             <input type='text' value={this.state.inputText} name="inputText" placeholder="Message..." onChange={this.handleChange}/>
             <button>Submit</button>
         </form>
+
+        <Map />
         </div>;
     }
 }

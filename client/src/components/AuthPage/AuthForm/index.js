@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import axios from 'axios';
+
 
 import styles from './AuthForm.module.scss'
 
@@ -53,33 +55,43 @@ class AuthForm extends Component {
             return
         }
 
-        fetch('/auth', {
-            method: 'POST',
-            body: JSON.stringify({
-                action: this.state.activePage,
+        if(this.state.activePage === "register")
+        {
+            const data = {
                 username: this.state.username,
                 password: this.state.password,
-                email: this.state.email,  
-            }),
-            headers: {
-                'Content-Type': 'application/json'
+                email: this.state.email
             }
-            })
+
+            axios.post('/auth/register', data, {headers: {'Content-Type': 'application/json'}})
             .then(async res => {
-            if (res.status === 200) {
-                console.log(await res.text())
-                
-            } else {
-                const error = new Error(res.error);
-                throw error;
-            }
+
+                console.log('GOOD', await res);
+        
             })
             .catch(err => {
-            console.error(err);
-            alert('Error logging in please try again');
-        });
+                console.error(err);
+            });
+        }
 
-        console.log("Ahoj");
+        if(this.state.activePage === "login")
+        {
+            const data = {
+                username: this.state.username,
+                password: this.state.password,
+            }
+
+            axios.post('/auth/login', data, {headers: {'Content-Type': 'application/json'}})
+            .then(async res => {
+                console.log('GOOD', await res);
+                console.log(document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+            })
+            .catch(err => {
+                console.error(err);
+            });
+            
+        }
+    
     }
 
 	render() {

@@ -1,0 +1,46 @@
+TODO:
+
+Dokoncit login system
+    -Krajsie errory
+    -Frontend design na errory
+    -Pridat moznosti Log Out
+    -User Role (user, moderator, admin) Netusim ake funkcie by mohol mat moderator, takze zatial iba User a Admin a ked sa behom vyvoja
+    objavy nejake rozumne vyuzitie, tak sa daju pridat aj ine role
+    + nieco na co si neviem spomenut :D
+
+Vytvorit sockety
+    -Zakladna sturktura socketov
+    -Priebezny frontend design
+    -Pridat room-ky
+    -Pridat servery
+
+Dalsi Update
+    -Pridat zakladny design na chat-y a na pripajanie na servery a do roomok
+    -Pridat moznosti vytvarat roomky a vybrat stovrceky na ktorych to chcete Vytvorit
+    -Room Settings (moznost nastavenia ci sa chat v konkretnej roomke bude ukladat do databazy alebo nie)
+
+Friends
+    -Pridat moznost pridavania Friend-ov + design + databazova tabulka so 2 stlpcami s menami 2 priatelov, datumu a action
+    -Action bar v kazdom svorceku kde je pripojeny uzivatel
+    -Priatelia by sa mali vediet najst (pripojit sa na rovnaky server, do rovnakej roomky) - friend chat by nedaval zmysel
+    -Zobrazenie stavu(Online, Offline popripade Away)
+
+Ked v sa predchadzajucich bodoch nevyskytli ziadne komplikacie
+    -Skraslenie chat-u (smajlici, obrazky pri linkoch atd...)
+    -Troska prefackat design aby to nejak vypadalo (nuddaaaaaaaaaa a flustracia incoming... :/ )
+    -Klodne by sa dal pridat aj UserProfile page
+    -Ked uz nebudem mat napady, tak si proste otvor Discord a kopiruj co uvidis xD (Role pre jednotlive roomky/servery, moznosti Mention,
+    moznost zmeny profilovky, username atd...) proste si to otvor a uvidis :D :D :D
+    -Keby si mal hrozne hrozne moc casu (co sa pravdepodobne nestane :D), tak by sa dal urobit aj API aby si ludia mohly vytvarat
+    chat botov (Cas na to aj tak nebude ale keby nahodou :D)
+
+
+
+!!!! KED FAKT NEBUDEM MAT CO ROBIT TAK BOLO DOBRE SA TROCHA POVENOVAT DESIGNU, LEBO AKO SA POZNAM, TAK PRAVDEPODOBNE SA MI TO NEBUDE CHCIET
+ROBIT A BUDE TO VYPADAT AKO KUS ...... !!!!!  + SOM NAJVIAN NEKREATIVNY CLOVEK KTOREHO POZNAM :D
+
+
+
+
+
+
