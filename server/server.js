@@ -12,6 +12,7 @@ require('dotenv').config({ path: ".env" });
 import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
+import mapRouter from './routes/map'
 //MODULES
 import sockets from './modules/sockets'
 
@@ -32,6 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
+app.use('/map', mapRouter);
 
 
 server.listen(port, () => console.log(`Listening on port ${port}`))

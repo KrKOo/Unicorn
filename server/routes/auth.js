@@ -7,7 +7,6 @@ import { registerValidation, loginValidation } from "../modules/inputValidation"
 
 const router = express.Router();
 
-
 const database = new dba();
 
 

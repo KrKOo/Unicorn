@@ -2,7 +2,7 @@ const mysql = require( 'mysql' );
 require('dotenv').config()
 
 export default class Database {
-    constructor(config)
+    constructor()
     {
         this.db = {
             host: process.env.DB_HOST,

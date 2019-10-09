@@ -1,0 +1,19 @@
+.mapTable
+{
+    display: table;
+    table-layout: fixed;
+    width: 1000px;
+       
+        .tableRow
+        {
+            background: red;
+            display: table-row;
+            .tableCell
+            {
+                display: table-cell;
+                width: 100px;
+                height: 100px;
+                border: 1px solid black;                
+            }
+        }
+}

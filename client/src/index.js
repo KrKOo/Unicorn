@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom'
 import * as serviceWorker from './serviceWorker'
 import { Route, Link, BrowserRouter as Router } from 'react-router-dom'
 
-import App from './components/App'
-import AuthPage from './components/AuthPage'
+import App from './components/App/App'
+import AuthPage from './components/AuthPage/AuthPage'
 
 const routing = (
     <Router>

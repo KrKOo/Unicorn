@@ -1,0 +1,26 @@
+.Chat
+{
+    display: flex;
+    flex-direction: column;
+    .messages
+    {
+        list-style: none;
+        flex-grow: 1;
+    }
+    
+    .inputForm
+    {
+        width: 100%;
+        
+        
+        input
+        {
+            display: block;
+            width: 95%;
+            margin: 10px auto;
+            font-size: 18px;
+            box-sizing: border-box;
+            
+        }
+    }
+}

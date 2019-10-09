@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import AuthForm from './AuthForm'
+import AuthForm from './AuthForm/AuthForm'
 import styles from './AuthPage.module.scss'
 
 class AuthPage extends Component {
@@ -30,10 +30,7 @@ class AuthPage extends Component {
 	render() {
 		return (
             <div className={styles.container}>
-                <AuthForm
-                    
-                    className={styles}
-                />
+                <AuthForm className={styles}/>
             </div>
         )
 	}
