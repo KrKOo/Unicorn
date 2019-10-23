@@ -5,9 +5,11 @@
   "main": "index.js",
   "dependencies": {
     "@hapi/joi": "^15.1.1",
+    "classnames": "^2.2.6",
     "concurrently": "^4.1.2",
     "jquery": "^3.4.1",
-    "jquery-ui": "^1.12.1"
+    "jquery-ui": "^1.12.1",
+    "react-draggable": "^4.0.3"
   },
   "devDependencies": {},
   "scripts": {

@@ -21,6 +21,8 @@ class Chat extends Component{
 
     componentDidMount()
     {
+        
+
         this.socket.on("Test", (data) => {
             console.log(data);
 
@@ -55,17 +57,27 @@ class Chat extends Component{
         this.setState({
             inputText: ''
         })
+
+        
+    }
+
+    componentDidUpdate()
+    {
+        var element = document.getElementsByClassName("chatMessages");
+        console.log(element)
+        element[0].scrollTop = element[0].scrollHeight;
+        element[1].scrollTop = element[1].scrollHeight;
     }
 
     render() {
         return <div className={`${styles.Chat} ${this.props.className}`} id={this.props.id}>
-            <ul className={styles.messages}>
+            <ul className={`chatMessages ${styles.messages}`}>
                 <li>John: Hello my name is John</li>
                 {this.state.chatHistory.map(message => <li>{`${message['username']}: ${message['text']}`}</li>)}  {/*TODO: Add componentShouldUpdate support*/}
             
             </ul>
             <form onSubmit={this.handleSubmit} className={styles.inputForm}>
-                <input type="text" value={this.state.inputText} name="inputText" placeholder="Message..." onChange={this.handleChange}/>                
+                <input type="text" value={this.state.inputText} name="inputText" placeholder="Message..." onChange={this.handleChange} autocomplete="off"/>                
             </form>
         </div>;
     }

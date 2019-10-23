@@ -15,7 +15,7 @@ class ServerList extends Component {
 
 	render() {
 		return (
-            <div className={`serverList ${this.props.className}`}>
+            <div className={`${this.props.className}`}>
                 jgfh
             </div>
         )

@@ -9,6 +9,8 @@ import Map from '../Map/Map'
 import RoomList from '../RoomList/RoomList'
 import ServerList from '../ServerList/ServerList'
 import FriendList from '../FriendList/FriendList'
+import SideBar from '../SideBar/SideBar'
+import SideBarCategory from '../SideBar/SideBarCategory'
 
 
 class App extends Component {
@@ -33,18 +35,19 @@ class App extends Component {
 	render() {
 		return (
 			<div className={styles.App}>
-				<div className={styles.leftSidebar}>
-					<ServerList className={styles.ServerList}/>
-					<RoomList className={styles.RoomList}/>
-				</div>
-
-				<div className={styles.rightSidebar}>
-					<FriendList className={styles.FirendList}/>
-				</div>
+				<SideBar className={styles.SideBar} position="left">
+					<SideBarCategory title="Server">
+						<ServerList className={styles.ServerList}/>
+						<RoomList className={styles.RoomList}/>
+					</SideBarCategory>
+					<SideBarCategory title="Friends">
+						<FriendList className={styles.FriendList}/>
+					</SideBarCategory>
+				</SideBar>
 
 				<div className={styles.middleBar}>
 					<div className={styles.mapContainer}>
-						<Map className={styles.Map} id="Map" socket={this.socket}/>
+						<Map className={styles.Map} id="Map" socket={this.socket}/>		
 					</div>
 					
 					<div className={styles.chatContainer}>
