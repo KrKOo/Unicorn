@@ -5,53 +5,75 @@
 .App
 {
     width: 100%;
+    display: flex;
+    flex-direction: row;
     
     .SideBar
     {
         background: $primaryDark;
-        position: absolute;
-        width: 220px;
+        position: relative;
+        min-width: 220px;
         height: 100vh;
         left: 0;
+        resize: both;
     }
 
 
     .middleBar
     {
-        
+        display: flex;
+        flex-flow:column;
+        flex-grow: 1;
+        max-height: 100vh;
         .mapContainer
         {
-            background: pink;
+            width: 100%;
+            max-height: 65vh;
+            position: relative;
+            background: $secondaryDark;
             overflow: hidden;
             .Map
             {
+                //position: absolute;``
                 display: block;
                 margin: 0 auto;
-                height: 65vh;
                 
             }
+            
         }
 
         .chatContainer
-        {
-            background: red;
-            
+        {           
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            width: 800px;
+            width: 100%;
+            height: 35vh;
             margin: 0 auto;
+            
 
             .Chat
             {
-                background: green;
-                width: 48%;
-                height: 35vh;
+                box-sizing: border-box;
+                background: $darkGray;
+                width: 50%;
+                height: 100%;
+                padding: 15px;
+
+                input
+                {
+                    background: $secondaryDark;
+                    color: $white;
+                    border: none;
+                    padding: 7px;
+                    border-radius: 4px;
+                }
 
             }
 
             #privateChat
             {
+                border-right: solid $primaryDark 1px;
             }
 
             #publicChat

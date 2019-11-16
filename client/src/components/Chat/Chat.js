@@ -28,7 +28,7 @@ class Chat extends Component{
 
             this.setState(prevState => {
                 let message = {
-                    username: 'Bob',
+                    username: data.username,
                     text: data.text
                 }
 
@@ -77,7 +77,7 @@ class Chat extends Component{
             
             </ul>
             <form onSubmit={this.handleSubmit} className={styles.inputForm}>
-                <input type="text" value={this.state.inputText} name="inputText" placeholder="Message..." onChange={this.handleChange} autocomplete="off"/>                
+                <input type="text" value={this.state.inputText} name="inputText" placeholder="Message..." onChange={this.handleChange} autoComplete="off"/>                
             </form>
         </div>;
     }

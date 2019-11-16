@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import Draggable from 'react-draggable';
 import axios from 'axios';
 import styles from './Map.module.scss';
@@ -106,10 +107,12 @@ class Map extends Component{
             map.push(<Row key={i} children={mapRow} mustUpdate={this.state.updatedRows.includes(i)}/>);
         }
 
-        return <Draggable allowAnyClick={false} bounds={{left:-500, top:-500, right: 500, bottom: 500}}><div className={`${styles.mapTable} ${this.props.className}`} id={this.props.id}>
-                {map}
-                
-            </div></Draggable>;
+        return <Draggable allowAnyClick={false} bounds={{top: -500, right: 500, bottom: 500, left: -500}}>
+                <div className={`${styles.mapTable} ${this.props.className}`} id={this.props.id}>
+                    {map}                
+                </div>
+            </Draggable>;
+            
         
         
     }

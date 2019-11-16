@@ -12,8 +12,6 @@ export default class Database {
         }
         
         this.pool = mysql.createPool(this.db)
-
-        console.log(this.db)
     }
 
     query(sql, args)

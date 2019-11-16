@@ -20,8 +20,12 @@ class SideBar extends Component {
 
 	toggleSideBar = (e) =>
 	{
-		this.setState((prevState) => ({visible: !prevState.visible}));
-		console.log(this.state.visible);
+		this.setState((prevState) => ({visible: !prevState.visible}),
+		() => 
+		{
+			console.log(this.state.visible);
+			(this.props.onToggle && this.props.onToggle(this.state.visible));
+		});
 		//e.target.parentNode.style.left = ;
 	}
 
@@ -47,7 +51,10 @@ class SideBar extends Component {
 				id="sideBar" 
 				style={{left:(this.state.visible ? '0px' : -document.getElementById('sideBar').clientWidth)}}>
 
-					<button className={`${styles.sideBarButton} ${(this.state.visible) ? '' : styles.right}`} onClick={this.toggleSideBar}><i class="fas fa-chevron-left fa-2x"></i></button>
+					{(this.props.toggle == 'true') && 
+						<button className={`${styles.sideBarButton} ${(this.state.visible) ? '' : styles.right}`} onClick={this.toggleSideBar}><i class="fas fa-chevron-left fa-2x"></i></button>
+					}
+					
 					<ul className={styles.navigation}>
 						{this.state.navList}
 					</ul>

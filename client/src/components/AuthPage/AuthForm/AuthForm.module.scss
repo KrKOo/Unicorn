@@ -4,7 +4,16 @@
 {
     display: flex;
     flex-direction: column;
-    background: #36393f;
+    background: $primaryDark;
+
+    .error
+    {
+        background: $error;
+        padding: 10px;
+        text-align: center;
+        color: white;
+        border-radius: 5px;
+    }
 
     .logo
     {
@@ -35,7 +44,7 @@
 
     input
     {
-        background: rgb(48, 51, 56);
+        background: $lightGray;
         box-shadow: 2px 2px #161616;
         &:focus
         {

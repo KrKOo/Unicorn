@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import axios from 'axios';
 
-
 import styles from './AuthForm.module.scss'
 
 class AuthForm extends Component {
@@ -10,12 +9,12 @@ class AuthForm extends Component {
 		super(props);
 		this.state = {
             activePage: this.props.type || 'login',
-            username: "",
-            email: "",
-            password: "",
-            confPassword: ""
+            username: '',
+            email: '',
+            password: '',
+            confPassword: '',
+            error: ''
         }
-        
         this.handleClick = this.handleClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -49,14 +48,15 @@ class AuthForm extends Component {
     {
         e.preventDefault()
 
-        if(this.state.activePage === "register" && this.state.password !== this.state.confPassword)
-        {
-            alert('The passwords does not match');
-            return
-        }
-
         if(this.state.activePage === "register")
         {
+            this.setState({error: ''});
+            if(this.state.password !== this.state.confPassword)
+            {
+                this.setState({error: 'The passwords does not match'})
+                return
+            }
+
             const data = {
                 username: this.state.username,
                 password: this.state.password,
@@ -67,7 +67,10 @@ class AuthForm extends Component {
             .then(async res => {
 
                 console.log('GOOD', await res);
-        
+                if(res.data.error)
+                {
+                    this.setState({error: res.data.error});
+                }
             })
             .catch(err => {
                 console.error(err);
@@ -84,7 +87,16 @@ class AuthForm extends Component {
             axios.post('/auth/login', data, {headers: {'Content-Type': 'application/json'}})
             .then(async res => {
                 console.log('GOOD', await res);
-                console.log(document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+                
+                if(res.data.error)
+                {
+                    this.setState({error: res.data.error});
+                }
+                else
+                {
+                    console.log(document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+                    this.props.history.push("/");
+                }
             })
             .catch(err => {
                 console.error(err);
@@ -96,11 +108,10 @@ class AuthForm extends Component {
 
 	render() {
 		return (
-        <>
-            
+        <>            
             <form className={`${this.props.className.authForm} ${styles.authForm}`} onSubmit={this.handleSubmit}>
                 <img src="https://murphytxstorage.com/wp-content/uploads/2015/10/placeholder-circle.png" className={styles.logo} alt="Logo"/>
-
+                <p className={styles.error}>{this.state.error}</p>
                 <label htmlFor="username">Username</label>
                 <input 
                     type="text" 

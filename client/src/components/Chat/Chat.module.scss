@@ -1,3 +1,5 @@
+@import '../shared.scss';
+
 .Chat
 {
     display: flex;
@@ -7,6 +9,7 @@
         list-style: none;
         flex-grow: 1;
         overflow-y: auto;
+        color: $white;
     }
     
     .inputForm
@@ -17,8 +20,7 @@
         input
         {
             display: block;
-            width: 95%;
-            margin: 10px auto;
+            width: 100%;
             font-size: 18px;
             box-sizing: border-box;
             

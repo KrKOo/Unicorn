@@ -30,7 +30,7 @@ class AuthPage extends Component {
 	render() {
 		return (
             <div className={styles.container}>
-                <AuthForm className={styles}/>
+                <AuthForm className={styles} history={this.props.history}/>
             </div>
         )
 	}
