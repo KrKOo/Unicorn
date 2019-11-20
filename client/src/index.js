@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as serviceWorker from './serviceWorker';
-import { Route, Link, BrowserRouter as Router} from 'react-router-dom';
+import { Switch, Route, Link, BrowserRouter as Router} from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
 import App from './components/App/App';
 import AuthPage from './components/AuthPage/AuthPage';
 
 const routing = (
     <Router>
-        <Route exact path="/" component={App} />
-        <Route path="/login" component={AuthPage} />
+        <Switch>            
+            <PrivateRoute exact path="/" component={App} />
+            <Route path="/login" component={AuthPage} />
+        </Switch>
     </Router>
 )
 

@@ -78,3 +78,25 @@ export const register = (username, password, email) => {
             })
     })
 }
+
+export const checkAuth = (token) => 
+{
+    console.log("Token: " + token);
+    if(token)
+    {
+        try{
+            let decoded = jwt.verify(token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
+            console.log("Decoded: " + decoded);
+            if(decoded)
+            {
+                return true;
+            }
+        }
+        catch(err)
+        {
+            console.log(err);
+            return false;
+        }
+    }
+    return false;
+}

@@ -94,7 +94,7 @@ class AuthForm extends Component {
                 }
                 else
                 {
-                    console.log(document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+                    console.log("redirecting to /")
                     this.props.history.push("/");
                 }
             })
@@ -111,7 +111,7 @@ class AuthForm extends Component {
         <>            
             <form className={`${this.props.className.authForm} ${styles.authForm}`} onSubmit={this.handleSubmit}>
                 <img src="https://murphytxstorage.com/wp-content/uploads/2015/10/placeholder-circle.png" className={styles.logo} alt="Logo"/>
-                <p className={styles.error}>{this.state.error}</p>
+                {this.state.error && <p className={styles.error}>{this.state.error}</p>}
                 <label htmlFor="username">Username</label>
                 <input 
                     type="text" 

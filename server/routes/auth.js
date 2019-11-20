@@ -1,5 +1,6 @@
 import express from 'express';
-import {register, login} from '../modules/authentication';
+import {register, login, checkAuth} from '../modules/authentication';
+var cookie = require('cookie');
 
 const router = express.Router();
 
@@ -44,6 +45,11 @@ router.post('/login', async (req, res, next) => {
         });
 
 });
+
+router.post('/checkAuth', (req, res, next) => {   
+    console.log(req.cookies['token']) 
+    res.send({logged: checkAuth(req.cookies['token'])})
+})
 
 
 export default router;

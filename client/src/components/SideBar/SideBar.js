@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 
 import styles from './SideBar.module.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 
 class SideBar extends Component {
 
