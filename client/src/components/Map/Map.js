@@ -10,9 +10,11 @@ class Row extends Component
     {
         super(props);
     }
-    shouldComponentUpdate()
+    shouldComponentUpdate(nextProps)
     {
-        return this.props.mustUpdate;
+        //return this.props.mustUpdate;
+
+        return this.props.children !== nextProps.children;
     }
     render()
     {
@@ -30,6 +32,8 @@ class Cell extends Component
         super(props);
     }
 
+    
+
     shouldComponentUpdate(nextProps)
     {
         return this.props.value !== nextProps.value;
@@ -39,7 +43,7 @@ class Cell extends Component
     {
         return (
             
-            <div id={this.props.id} className={styles.tableCell}>
+            <div id={this.props.id} className={styles.tableCell} onDoubleClick={this.props.onDoubleClick}>
                 {this.props.value}
                 {console.log(this.props.value)}
             </div>
@@ -66,45 +70,72 @@ class Map extends Component{
 
     componentDidMount()
     {
-        axios.get("/map", {
-            params: {
-                mapName: 'map1'
-            }
-        })
-        .then(function (response) {
-            console.log(response);
-        })
-            .catch(function (error) {
-            console.log(error);
-        })
+        let self = this;
+		axios.get("/map/get/0")
+			.then(function (response) {		
+                console.log(response);
+                self.setState((prevState) => 
+                {
+                    let newMap = prevState.map;
+                    let updatedRows = [];
+                    response.data.forEach(user => {
+                        newMap[user.position] = user.users_id;
+                        let updatedRow = Math.floor(user.position/self.MAP_SIZE);
 
-        this.socket.on("Test", (data) => {
+                        if(updatedRows.indexOf(updatedRow) === -1) {
+                            updatedRows.push(updatedRow);
+                        }
+                        
+                    });
+
+                    return ({
+                        map: newMap,
+                        updatedRows: updatedRows
+                    });
+                })
+			})
+			.catch(function (error) {
+				console.log(error);
+			})
+
+
+        this.socket.on("move", (data) => {
             console.log(data);
 
             this.setState(prevState => {
                 let newMap = prevState.map;
-                newMap[9]+=1;
+                newMap[data.position] = data.username;
+                newMap[data.lastPosition] = null;
                 return {                    
-                    map: newMap,
-                    updatedRows: [Math.floor(9/this.MAP_SIZE)]
+                    map: newMap
                 }
             })
         }); 
 
     }
 
+    handleClick = (e) =>
+    {
+        this.socket.emit('move', {
+            server: 0,
+            position: e.target.id.split('cell_').pop()
+        })
+    }
+
     render() {
         let map = [];
-
+        console.log("MAP:" + this.state.map[25])
         for (let i = 0; i < this.MAP_SIZE; i++)
         {
             let mapRow = [];
             for(let j = 0; j < this.MAP_SIZE; j++)
             {
-                mapRow.push(<Cell key={j} id={`cell_${i*this.MAP_SIZE+j}`} value="---"/>);
+                
+                mapRow.push(<Cell key={j} id={`cell_${i*this.MAP_SIZE+j}`} value={this.state.map[i*this.MAP_SIZE+j]} onDoubleClick={this.handleClick}/>);
             }
 
-            map.push(<Row key={i} children={mapRow} mustUpdate={this.state.updatedRows.includes(i)}/>);
+            console.log(this.state.updatedRows);
+            map.push(<Row key={i} children={mapRow}/>);
         }
 
         return <Draggable allowAnyClick={false} bounds={{top: -500, right: 500, bottom: 500, left: -500}}>

@@ -54,7 +54,7 @@ class AuthForm extends Component {
             if(this.state.password !== this.state.confPassword)
             {
                 this.setState({error: 'The passwords does not match'})
-                return
+                return;
             }
 
             const data = {

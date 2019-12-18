@@ -30,6 +30,11 @@ export const login = (username, password) => {
                             expiresIn: 60*10
                         });
                     
+                    database.query('UPDATE users SET last_login = NOW() WHERE username = ?', [username]) //Update the last_login time
+                        .catch(err => {
+                            throw err;
+                        });
+
                     return resolve({
                         username: username,
                         token: token
@@ -67,8 +72,8 @@ export const register = (username, password, email) => {
             })
             .then((hashedPassword) => {
                 console.log(hashedPassword);
-                return database.query('INSERT INTO users (email, username, password, role) VALUES (?, ?, ?, ?)', 
-                [email, username, hashedPassword, 'user'])   //Insert the user to the database                
+                return database.query('INSERT INTO users (username, password, email, created_at) VALUES (?, ?, ?, NOW())', 
+                [username, hashedPassword, email, 'user']);   //Insert the user to the database                
             })
             .then(() => {
                 return resolve({username:username});
@@ -81,7 +86,6 @@ export const register = (username, password, email) => {
 
 export const checkAuth = (token) => 
 {
-    console.log("Token: " + token);
     if(token)
     {
         try{

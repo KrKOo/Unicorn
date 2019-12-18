@@ -16,7 +16,7 @@ class RoomList extends Component {
 	render() {
 		return (
             <div className={`roomList ${this.props.className}`}>
-                asdf
+                <h3>Room List</h3>
             </div>
         )
 	}

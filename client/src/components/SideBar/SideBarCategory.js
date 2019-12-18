@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-//import styles from './SideBar.module.scss';
+import styles from './SideBar.module.scss';
 
 class SideBarCategory extends Component {
 
@@ -17,7 +17,7 @@ class SideBarCategory extends Component {
 
 	render() {
 		return (			
-            <div className="sideBarCategory">
+            <div className={styles.SideBarCategory}>
                 {this.props.children}
             </div>
 		);
