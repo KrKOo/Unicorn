@@ -1,0 +1,39 @@
+@import '../../components/shared.scss';
+
+.container
+{
+    background: $primaryColor;
+    border-radius: 20px;
+    overflow: hidden;
+    header
+    {
+        height: 250px;
+        //background: $primaryColorDark;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.397), $primaryColor);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        img
+        {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+        }
+
+        .username
+        {
+            margin-top: 10px;
+            font-size: 30px;
+            color: white;
+        }
+
+        .userid
+        {
+            margin-top: 5px;
+            font-size: 20px;
+            color: darkgreen;
+        }
+
+    }
+}

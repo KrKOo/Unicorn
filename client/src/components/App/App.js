@@ -2,15 +2,16 @@ import React, { Component } from "react";
 //import axios from 'axios';
 import openSocket from 'socket.io-client';
 
-import styles from './App.module.scss'
+import styles from './App.module.scss';
 
-import Chat from '../Chat/Chat'
-import Map from '../Map/Map'
-import RoomList from '../RoomList/RoomList'
-import ServerList from '../ServerList/ServerList'
-import FriendList from '../FriendList/FriendList'
-import SideBar from '../SideBar/SideBar'
-import SideBarCategory from '../SideBar/SideBarCategory'
+import Chat from '../Chat/Chat';
+import Map from '../Map/Map';
+import RoomList from '../RoomList/RoomList';
+import ServerList from '../ServerList/ServerList';
+import FriendList from '../FriendList/FriendList';
+import SideBar from '../SideBar/SideBar';
+import SideBarCategory from '../SideBar/SideBarCategory';
+import UserInfo from '../UserInfo/UserInfo';
 import { Resizable } from "re-resizable";
 
 
@@ -48,6 +49,7 @@ class App extends Component {
 	render() {
 		return (
 			<div className={styles.App}>
+				{/*<UserInfo className={styles.UserInfo} />*/}
 				<SideBar className={styles.SideBar} toggle="false">
 					<SideBarCategory title="Server">
 						<ServerList className={styles.ServerList}/>

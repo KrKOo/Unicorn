@@ -10,10 +10,18 @@ export default (io) => {
         
         socket.on('Test', function (data) {
             const cookies = cookie.parse(socket.handshake.headers.cookie);
-            const decodedToken = decodeToken(cookies);
+            
+            try
+            {
+                var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
+                data.username = decodedToken.username;
+                io.emit('Test', data);
+            }
+            catch(err) {
+                console.log(err);
+            }
 
-            data.username = decodedToken.username;
-            io.emit('Test', data);
+            
         });
 
         socket.on('move', (data) => {
