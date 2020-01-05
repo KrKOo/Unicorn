@@ -8,7 +8,7 @@ class ServerList extends Component {
 	constructor() {
 		super();
 		this.state = {
-			serverList: ['a', 'b']
+			serverList: []
         }
 	}
 	componentDidMount() {
@@ -20,7 +20,17 @@ class ServerList extends Component {
 			.catch(function (error) {
 				console.log(error);
 			})
-    }
+	}
+	
+	handleClick = (e) => 
+	{
+		const {className} = e.target;
+
+		if(className == "mapName")
+		{
+			this.props.onMapChange(e.target.getAttribute("mapID"));
+		}
+	}
 
 	render() {
 		return (
@@ -29,7 +39,7 @@ class ServerList extends Component {
                 <ul>
 					{this.state.serverList.map(server => {
 						return (
-							<li>{server.name}</li>
+							<li key={server.id} mapID={server.id} className="mapName" onClick={this.handleClick}>{server.name}</li>
 						);
 					})}
 				</ul>

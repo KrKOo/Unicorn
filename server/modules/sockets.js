@@ -7,7 +7,11 @@ const database = new dba();
 
 export default (io) => {
     io.on('connection', function (socket) {
-        
+
+        socket.on('join', async room => {
+            socket.join(room);
+            console.log('Joined to room' + room);
+        })
         socket.on('Test', function (data) {
             const cookies = cookie.parse(socket.handshake.headers.cookie);
             
@@ -15,7 +19,8 @@ export default (io) => {
             {
                 var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
                 data.username = decodedToken.username;
-                io.emit('Test', data);
+                //io.emit('Test', data);
+                io.in(data.mapID).emit('Test', data);
             }
             catch(err) {
                 console.log(err);
@@ -29,6 +34,7 @@ export default (io) => {
             try{
                 var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
                 var username = decodedToken.username;   
+                var userID = decodedToken.userID;
                             
                 database.query(`SELECT position FROM user_position WHERE users_id IN (SELECT id FROM users WHERE username = ?)`, [username])
                     .then(result => {
@@ -39,8 +45,9 @@ export default (io) => {
                             VALUES ((SELECT id FROM users WHERE username=?), ?, ?) ON DUPLICATE KEY UPDATE servers_id=?, position=?`, 
                             [username, data.server, data.position, data.server, data.position])                        
                     })
-                    .then(result => {
-                        data.username = username
+                    .then(() => {
+                        data.username = username;
+                        data.userID = userID;
                         console.log(data);
                         io.emit('move', data);
                     })

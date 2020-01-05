@@ -22,7 +22,7 @@ class Chat extends Component{
     componentDidMount()
     {
         
-
+        //this.socket.emit('join', this.props.mapID);
         this.socket.on("Test", (data) => {
             console.log(data);
 
@@ -50,7 +50,9 @@ class Chat extends Component{
     handleSubmit(e)
     {
         e.preventDefault()
+        console.log("MESSAGE mapID: " + this.props.mapID)
         this.socket.emit('Test', {
+            mapID: this.props.mapID,
             text: this.state.inputText
         })
 

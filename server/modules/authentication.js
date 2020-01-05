@@ -10,9 +10,10 @@ export const login = (username, password) => {
     return new Promise((resolve, reject) => {
         // const { error } = loginValidation({ username: username, password: password });
         // if (error) return reject(error.details[0].context.label);
-
+        let res;
         database.query('SELECT password FROM users WHERE username=?', [username])
-            .then(result => {               
+            .then(result => {    
+               
                 if (result.length === 0) 
                     throw "Wrong Username or Password";                    
 
@@ -21,29 +22,33 @@ export const login = (username, password) => {
             })
             .then(bcryptResult => {
                 if (bcryptResult) {
-                    const token = jwt.sign({
-                            username: username 
-                        }, 
-                        process.env.TOKEN_SECRET,
-                        {
-                            algorithm: 'HS256',
-                            expiresIn: 60*10
-                        });
-                    
-                    database.query('UPDATE users SET last_login = NOW() WHERE username = ?', [username]) //Update the last_login time
-                        .catch(err => {
-                            throw err;
-                        });
-
-                    return resolve({
-                        username: username,
-                        token: token
-                    });
+                    return database.query('SELECT id FROM users WHERE username = ?', [username])
                 }
                 else {
                     throw "Wrong Username or Password";
                 }
             })
+            .then((result) => {
+                console.log("Result ID: " + result[0].id);
+                var token = jwt.sign({
+                        userID: result[0].id,
+                        username: username 
+                    }, 
+                    process.env.TOKEN_SECRET,
+                    {
+                        algorithm: 'HS256',
+                        expiresIn: 60*10
+                    });
+                return token;
+            })    
+            .then((token) => {
+                database.query('UPDATE users SET last_login = NOW() WHERE username = ?', [username]) //Update the last_login time
+
+                return resolve({
+                    username: username,
+                    token: token
+                }); 
+            })  
             .catch(err => {
                 return reject(err);
             });

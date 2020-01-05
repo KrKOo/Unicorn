@@ -36,6 +36,7 @@ router.post('/login', async (req, res, next) => {
 
     login(username, password)
         .then((loginResult) => {
+            console.log("logged");
             res.cookie('token', loginResult.token, { maxAge: 900000, httpOnly: true });
             res.send({username: loginResult.username});
         })

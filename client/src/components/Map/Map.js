@@ -61,7 +61,6 @@ class Map extends Component{
 
         this.state = {
             map: [],
-            number: 1,
             updatedRows: []
         }
 
@@ -70,11 +69,54 @@ class Map extends Component{
 
     componentDidMount()
     {
+        this.getMap(this.props.mapID);
+
+
+        this.socket.on("move", (data) => {
+            console.log(data);
+
+            this.setState(prevState => {
+                let newMap = prevState.map;
+                newMap[data.position] = data.userID;
+                newMap[data.lastPosition] = null;
+                return {                    
+                    map: newMap
+                }
+            })
+        }); 
+
+    }
+
+    componentDidUpdate(prevProps)
+    {
+        if(this.props.mapID !== prevProps.mapID)
+        {
+            this.getMap(this.props.mapID);
+        }
+    }
+
+    handleClick = (e) =>
+    {
+        this.socket.emit('move', {
+            mapID: this.props.mapID,
+            position: e.target.id.split('cell_').pop()
+        })
+    }
+
+    getMap = (mapID) =>
+    {
         let self = this;
-		axios.get("/map/get/0")
+        console.log("GET MAP mapID: " + this.props.mapID)
+		axios.get(`/map/get/${this.props.mapID}`)
 			.then(function (response) {		
-                console.log(response);
-                self.setState((prevState) => 
+                const newMap = [];
+                response.data.forEach(user => {
+                    newMap[user.position] = user.users_id;
+                });
+
+                self.setState({map: newMap});
+
+                /*self.setState((prevState) => 
                 {
                     let newMap = prevState.map;
                     let updatedRows = [];
@@ -92,39 +134,16 @@ class Map extends Component{
                         map: newMap,
                         updatedRows: updatedRows
                     });
-                })
+                })*/
 			})
 			.catch(function (error) {
 				console.log(error);
 			})
-
-
-        this.socket.on("move", (data) => {
-            console.log(data);
-
-            this.setState(prevState => {
-                let newMap = prevState.map;
-                newMap[data.position] = data.username;
-                newMap[data.lastPosition] = null;
-                return {                    
-                    map: newMap
-                }
-            })
-        }); 
-
-    }
-
-    handleClick = (e) =>
-    {
-        this.socket.emit('move', {
-            server: 0,
-            position: e.target.id.split('cell_').pop()
-        })
     }
 
     render() {
+        console.log(this.state.map)
         let map = [];
-        console.log("MAP:" + this.state.map[25])
         for (let i = 0; i < this.MAP_SIZE; i++)
         {
             let mapRow = [];
@@ -134,7 +153,7 @@ class Map extends Component{
                 mapRow.push(<Cell key={j} id={`cell_${i*this.MAP_SIZE+j}`} value={this.state.map[i*this.MAP_SIZE+j]} onDoubleClick={this.handleClick}/>);
             }
 
-            console.log(this.state.updatedRows);
+            //console.log(this.state.updatedRows);
             map.push(<Row key={i} children={mapRow}/>);
         }
 

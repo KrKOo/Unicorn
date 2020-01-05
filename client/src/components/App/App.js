@@ -20,13 +20,15 @@ class App extends Component {
 	constructor() {
 		super();
 		this.state = {
-			chatWidth: 100
+			chatWidth: 100,
+			mapID: 1		
 		}
 		this.sideBar = React.createRef();
 		this.socket = openSocket('http://localhost:9000');
 		this.socket.on('connect', function() {
 			console.log('check', this.socket);
 		});
+		this.socket.emit('join', this.state.mapID);
 	}
 	componentDidMount() {
 		// fetch("/users").then(async (res) => {
@@ -43,7 +45,11 @@ class App extends Component {
 		
 	}
 
-
+	changeMap = (mapID) =>
+	{
+		this.setState({mapID: mapID});
+		this.socket.emit('join', mapID);
+	}
 	
 
 	render() {
@@ -52,7 +58,7 @@ class App extends Component {
 				{/*<UserInfo className={styles.UserInfo} />*/}
 				<SideBar className={styles.SideBar} toggle="false">
 					<SideBarCategory title="Server">
-						<ServerList className={styles.ServerList}/>
+						<ServerList className={styles.ServerList} onMapChange={this.changeMap}/>
 						<RoomList className={styles.RoomList}/>
 					</SideBarCategory>
 					<SideBarCategory title="Friends">
@@ -62,12 +68,12 @@ class App extends Component {
 
 				<div className={styles.middleBar}>
 					<div className={styles.mapContainer}>
-						<Map className={styles.Map} id="Map" socket={this.socket}/>								
+						<Map className={styles.Map} id="Map" socket={this.socket} mapID={this.state.mapID}/>								
 					</div>
 					
 					<div className={styles.chatContainer}>
-						<Chat className={styles.Chat} id={styles.privateChat} socket={this.socket} />
-						<Chat className={styles.Chat} id={styles.publicChat} socket={this.socket} />
+						<Chat className={styles.Chat} id={styles.privateChat} socket={this.socket} mapID={this.state.mapID}/>
+						<Chat className={styles.Chat} id={styles.publicChat} socket={this.socket} mapID={this.state.mapID}/>
 					</div>
 				</div>
 				
