@@ -39,7 +39,7 @@ class ServerList extends Component {
                 <ul>
 					{this.state.serverList.map(server => {
 						return (
-							<li key={server.id} mapID={server.id} className="mapName" onClick={this.handleClick}>{server.name}</li>
+							<li key={server.id} mapid={server.id} className="mapName" onClick={this.handleClick}>{server.name}</li>
 						);
 					})}
 				</ul>

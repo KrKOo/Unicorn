@@ -1,0 +1,26 @@
+@import '../../components/shared.scss';
+
+.container
+{
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .profileImg
+    {
+        
+        width: 55px;
+        height: auto;
+        border-radius: 50%;
+    }
+
+    .userName
+    {
+        padding-top: 7px;
+        font-size: 18px;
+        color: $white;
+    }
+}

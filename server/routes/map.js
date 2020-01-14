@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 const router = express.Router()
 var cookie = require('cookie');
 
-import dba from '../modules/database.js';
+import dba from '../modules/Database.js';
 
 const database = new dba();
 

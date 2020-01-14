@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 
-import dba from '../modules/database.js';
+import dba from '../modules/Database.js';
 
 
 const database = new dba();

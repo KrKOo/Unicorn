@@ -21,14 +21,15 @@ class App extends Component {
 		super();
 		this.state = {
 			chatWidth: 100,
-			mapID: 1		
+			mapID: 1,
+			isEditMode: false
 		}
 		this.sideBar = React.createRef();
 		this.socket = openSocket('http://localhost:9000');
 		this.socket.on('connect', function() {
-			console.log('check', this.socket);
+			console.log("Connected to the server");
 		});
-		this.socket.emit('join', this.state.mapID);
+		this.socket.emit('joinMap', this.state.mapID);
 	}
 	componentDidMount() {
 		// fetch("/users").then(async (res) => {
@@ -47,16 +48,21 @@ class App extends Component {
 
 	changeMap = (mapID) =>
 	{
-		this.setState({mapID: mapID});
-		this.socket.emit('join', mapID);
+		this.socket.emit('leaveMap', this.state.mapID);
+		this.setState({mapID: mapID});		
+		this.socket.emit('joinMap', mapID);
 	}
 	
+	mapModeChange = (isEditMode) => 
+	{
+		this.setState({isEditMode: isEditMode});
+	}
 
 	render() {
 		return (
 			<div className={styles.App}>
 				{/*<UserInfo className={styles.UserInfo} />*/}
-				<SideBar className={styles.SideBar} toggle="false">
+				<SideBar className={styles.SideBar} toggle="false" onMapModeChange={this.mapModeChange}>
 					<SideBarCategory title="Server">
 						<ServerList className={styles.ServerList} onMapChange={this.changeMap}/>
 						<RoomList className={styles.RoomList}/>
@@ -68,7 +74,7 @@ class App extends Component {
 
 				<div className={styles.middleBar}>
 					<div className={styles.mapContainer}>
-						<Map className={styles.Map} id="Map" socket={this.socket} mapID={this.state.mapID}/>								
+						<Map className={styles.Map} id="Map" socket={this.socket} mapID={this.state.mapID} isEditMode={this.state.isEditMode}/>								
 					</div>
 					
 					<div className={styles.chatContainer}>

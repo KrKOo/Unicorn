@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import decodeToken from '../modules/authentication';
-import dba from '../modules/database.js';
+import dba from './Database.js';
 var cookie = require('cookie');
 
 const database = new dba();
@@ -10,8 +10,25 @@ export default (io) => {
 
         socket.on('join', async room => {
             socket.join(room);
-            console.log('Joined to room' + room);
-        })
+            console.log('Joined to room: ' + room);
+        });
+
+        socket.on('leaveServer', async room => {
+            socket.leave(room, (err) => {
+                console.log(err);
+            });
+            console.log('Left room: ' + room);
+        });
+
+        socket.on('leaveRoom', async room => {
+            socket.leave(room, (err) => {
+                console.log(err);
+            });
+            console.log('Left room: ' + room);
+        });
+
+
+
         socket.on('Test', function (data) {
             const cookies = cookie.parse(socket.handshake.headers.cookie);
             
@@ -41,15 +58,15 @@ export default (io) => {
                         data.lastPosition = result[0].position;
                     })
                     .then(() => {
-                        database.query(`INSERT INTO user_position (users_id, servers_id, position) 
+                        return database.query(`INSERT INTO user_position (users_id, servers_id, position) 
                             VALUES ((SELECT id FROM users WHERE username=?), ?, ?) ON DUPLICATE KEY UPDATE servers_id=?, position=?`, 
-                            [username, data.server, data.position, data.server, data.position])                        
+                            [username, data.mapID, data.position, data.mapID, data.position])                       
                     })
                     .then(() => {
                         data.username = username;
                         data.userID = userID;
                         console.log(data);
-                        io.emit('move', data);
+                        io.in(data.mapID).emit('move', data);
                     })
                     .catch(err => {
                         console.log(err);

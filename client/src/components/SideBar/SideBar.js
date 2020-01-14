@@ -9,15 +9,27 @@ class SideBar extends Component {
 	constructor() {
 		super();
 		this.state = {
-			visible: true
+			visible: true,
+			isEditMode: false
 		}
 	}
 
 	handleClick = (e) => 
 	{
-		let sideBarContent = this.props.children[e.target.dataset.key];
+		if(e.currentTarget.className == 'navButton')
+		{
+			let sideBarContent = this.props.children[e.target.dataset.key];
 
-		this.setState({sideBarContent:sideBarContent});
+			this.setState({sideBarContent:sideBarContent});
+		}
+		else if(e.currentTarget.id == 'mapModeButton')
+		{
+			this.setState((prevState) => 
+			{
+				return {isEditMode: !prevState.isEditMode}
+			})
+			this.props.onMapModeChange(this.state.isEditMode);
+		}
 	}
 
 	toggleSideBar = (e) =>
@@ -36,7 +48,7 @@ class SideBar extends Component {
 		let navList = [];
 		this.props.children.forEach((element, key) =>
 		{
-			navList.push(<li key={key} data-key={key} onClick={this.handleClick}>{element.props.title}</li>)
+			navList.push(<li key={key} data-key={key} onClick={this.handleClick} className="navButton">{element.props.title}</li>)
 		});
 
 		this.setState({
@@ -60,9 +72,19 @@ class SideBar extends Component {
 					<ul className={styles.navigation}>
 						{this.state.navList}
 					</ul>
-					<div>
+					<div className={styles.content}>
 						{this.state.sideBarContent}
 					</div>
+
+					<footer>
+						<button><i class="fas fa-phone-slash"></i></button>
+						<button><i class="fas fa-cog"></i></button>
+						<button 
+							id="mapModeButton" 
+							onClick={this.handleClick}>
+								<i class="fas fa-edit"></i>
+						</button>
+					</footer>
 			</div>
 		);
 	}

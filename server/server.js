@@ -16,11 +16,14 @@ import mapRouter from './routes/map'
 //MODULES
 import sockets from './modules/sockets'
 
+import SocketManager from './modules/SocketManager';
+
 //dotenv.config();
 
 const app = express();
 const server = http.createServer(app)
-const io = sockets(socketIO(server));
+
+const socket = new SocketManager(socketIO(server));
 
 const port = 9000;
 

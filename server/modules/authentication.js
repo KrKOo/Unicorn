@@ -1,4 +1,4 @@
-import dba from '../modules/database.js';
+import dba from './Database.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
 
@@ -37,7 +37,7 @@ export const login = (username, password) => {
                     process.env.TOKEN_SECRET,
                     {
                         algorithm: 'HS256',
-                        expiresIn: 60*10
+                        expiresIn: 60*30
                     });
                 return token;
             })    
