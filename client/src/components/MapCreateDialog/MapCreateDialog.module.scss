@@ -1,0 +1,82 @@
+@import '../../components/shared.scss';
+
+.container
+{
+    background-color: $primaryColor;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.300), $primaryColor);
+    border-radius: 20px;
+    overflow: hidden;
+    form
+    {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        *
+        {
+            margin: 5px 0;
+        }
+
+        label
+        {
+            font-size: 20px;
+            color: white;
+        }
+
+        input
+        {
+            font-size: 20px;
+        }
+        input[type=text]
+        {   
+            box-sizing: border-box;
+            width: 100%;
+            padding: 3px;
+        }
+
+        input[type=submit], input[type=button]
+        {   
+            border: none;
+            outline: none;
+            ;
+        }
+
+        input[type=submit]
+        {
+            border-radius: 7px;
+            margin-left: 10px;
+            padding: 7px;
+            background: white;
+            color: $primaryColor;
+            &:hover
+            {
+                cursor: pointer;
+                color: white;
+                background: $primaryColorDark;
+            }
+        }
+
+        input[type=button]
+        {            
+            padding: 3px;
+            background: none;
+            color: $primaryDark;
+            &:hover
+            {
+                color: white;
+                cursor: pointer;
+                text-decoration: underline;
+            }
+        }
+
+
+        .buttonContainer
+        {
+            text-align: right;
+            width: 100%;
+        }
+    }
+    
+}

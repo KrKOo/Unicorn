@@ -12,6 +12,7 @@ import FriendList from '../FriendList/FriendList';
 import SideBar from '../SideBar/SideBar';
 import SideBarCategory from '../SideBar/SideBarCategory';
 import UserInfo from '../UserInfo/UserInfo';
+import MapCreateDialog from '../MapCreateDialog/MapCreateDialog';
 import { Resizable } from "re-resizable";
 
 
@@ -22,7 +23,8 @@ class App extends Component {
 		this.state = {
 			chatWidth: 100,
 			mapID: 1,
-			isEditMode: false
+			isEditMode: false,
+			showCreateRoomDialog: false
 		}
 		this.sideBar = React.createRef();
 		this.socket = openSocket('http://localhost:9000');
@@ -53,16 +55,34 @@ class App extends Component {
 		this.socket.emit('joinMap', mapID);
 	}
 	
-	mapModeChange = (isEditMode) => 
+	mapModeChange = () => 
 	{
-		this.setState({isEditMode: isEditMode});
+		this.setState((prevState) => 
+		{
+			return {
+				isEditMode: !prevState.isEditMode
+			}
+		})
+	}
+
+	createRoomToggle = () =>
+	{
+		this.setState((prevState) => 
+		{
+			return {
+				showCreateRoomDialog: !prevState.showCreateRoomDialog
+			}
+		})
 	}
 
 	render() {
 		return (
 			<div className={styles.App}>
 				{/*<UserInfo className={styles.UserInfo} />*/}
-				<SideBar className={styles.SideBar} toggle="false" onMapModeChange={this.mapModeChange}>
+
+				{this.state.showCreateRoomDialog && <MapCreateDialog className={styles.MapCreateDialog} onToggle={this.createRoomToggle}/>}
+				
+				<SideBar className={styles.SideBar} toggle="false" onMapModeChange={this.mapModeChange} onCreateRoomToggle={this.createRoomToggle}>
 					<SideBarCategory title="Server">
 						<ServerList className={styles.ServerList} onMapChange={this.changeMap}/>
 						<RoomList className={styles.RoomList}/>

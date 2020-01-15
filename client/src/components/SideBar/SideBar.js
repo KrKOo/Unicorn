@@ -24,11 +24,11 @@ class SideBar extends Component {
 		}
 		else if(e.currentTarget.id == 'mapModeButton')
 		{
-			this.setState((prevState) => 
-			{
-				return {isEditMode: !prevState.isEditMode}
-			})
-			this.props.onMapModeChange(this.state.isEditMode);
+			this.props.onMapModeToggle();
+		}
+		else if(e.currentTarget.id == 'mapCreateButton')
+		{
+			this.props.onCreateRoomToggle();			
 		}
 	}
 
@@ -84,6 +84,12 @@ class SideBar extends Component {
 							onClick={this.handleClick}>
 								<i class="fas fa-edit"></i>
 						</button>
+						<button
+							id="mapCreateButton"
+							onClick={this.handleClick}>
+								<i class="far fa-plus-square"></i>
+						</button>
+						
 					</footer>
 			</div>
 		);

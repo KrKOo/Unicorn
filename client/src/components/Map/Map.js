@@ -114,7 +114,7 @@ class Map extends Component {
     getMap = (mapID) => {
         let self = this;
         console.log("GET MAP mapID: " + this.props.mapID)
-        axios.get(`/map/get/${this.props.mapID}`)
+        axios.get(`/map/get/${mapID}`)
             .then(function (response) {
                 const newMap = [];
                 response.data.forEach(user => {

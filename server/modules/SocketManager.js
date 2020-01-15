@@ -31,6 +31,10 @@ export default class SocketManager {
             socket.on('move', data => {
                 this.move(socket, data);
             })
+
+            socket.on('roomEdit', data => {
+                this.roomEdit(socket, data);
+            })
         })
     }
 
@@ -173,5 +177,25 @@ export default class SocketManager {
         }
     }
 
+    roomEdit(socket, data){
+        const cookies = cookie.parse(socket.handshake.headers.cookie);
+            
+        try{
+            var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
+            var username = decodedToken.username;   
+            var userID = decodedToken.userID;
+                        
+            this.db.query("INSERT INTO room_fields (rooms_id, servers_id, field_id) VALUES (?, ?, ?)", [ 0, data.mapID, data.cell])
+            .then(() => {
+                this.io.in(`map${data.mapID}`).emit('roomEdit', data);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        }
+        catch(err) {
+            console.log(err);
+        }
+    }
 
 }
