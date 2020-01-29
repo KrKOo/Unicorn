@@ -24,18 +24,22 @@ class Chat extends Component{
         
         //this.socket.emit('join', this.props.mapID);
         this.socket.on('message', (data) => {
-            console.log(data);
-
-            this.setState(prevState => {
-                let message = {
-                    username: data.username,
-                    text: data.text
-                }
-
-                return {                    
-                    chatHistory: [...prevState.chatHistory, message]
-                }
-            })
+            
+            if(data.roomName == this.props.roomName)
+            {
+                console.log(data);
+                this.setState(prevState => {
+                    let message = {
+                        username: data.username,
+                        text: data.text
+                    }
+    
+                    return {                    
+                        chatHistory: [...prevState.chatHistory, message]
+                    }
+                });
+            }
+            
         });        
         
     }
@@ -50,9 +54,8 @@ class Chat extends Component{
     handleSubmit(e)
     {
         e.preventDefault()
-        console.log("MESSAGE mapID: " + this.props.mapID)
         this.socket.emit('message', {
-            mapID: this.props.mapID,
+            roomName: this.props.roomName,
             text: this.state.inputText
         })
 
@@ -72,7 +75,7 @@ class Chat extends Component{
     }
 
     render() {
-        return <div className={`${styles.Chat} ${this.props.className}`} id={this.props.id}>
+        return <div className={`${styles.Chat} ${this.props.className}`} id={this.props.id} style={this.props.style}>
             <ul className={`chatMessages ${styles.messages}`}>
                 <li>John: Hello my name is John</li>
                 {this.state.chatHistory.map(message => <li>{`${message['username']}: ${message['text']}`}</li>)}  {/*TODO: Add componentShouldUpdate support*/}

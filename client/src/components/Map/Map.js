@@ -34,8 +34,12 @@ class Cell extends Component {
 
     render() {
         return (
-            <div className={styles.tableCell} id={this.props.id} onDoubleClick={this.props.onDoubleClick}>
-                {this.props.value}
+            <div 
+                className={styles.tableCell} 
+                id={this.props.id} 
+                onDoubleClick={this.props.onDoubleClick}
+                style={{backgroundColor: this.props.background}}>
+                    {this.props.value}
             </div>
         );
     }
@@ -50,7 +54,9 @@ class Map extends Component {
 
         this.state = {
             map: [],
-            updatedRows: []
+            fieldColors: [],
+            roomColors: [],
+            roomFields: []
         }
     }
 
@@ -58,6 +64,7 @@ class Map extends Component {
         this.getMap(this.props.mapID);
 
         this.socket.on('mapEvent', (data) => {
+            console.log("mapEvent");
             if (!data.isJoin) {
                 console.log("Left");
                 console.log(data);
@@ -70,21 +77,44 @@ class Map extends Component {
                     }
                 })
             }
-
         });
 
         this.socket.on('move', (data) => {
             console.log(data);
+            
             this.setState(prevState => {
                 let newMap = prevState.map;
                 newMap[data.position] = data.userID;
                 if (data.lastPosition !== undefined) {
                     newMap[data.lastPosition] = null;
                 }
-
                 return {
                     map: newMap
                 }
+            })
+        });
+
+        this.socket.on('roomCreate', (data) => {
+            this.setState(prevState => {
+                let newRoomColors = prevState.roomColors;
+                newRoomColors.push({id: data.roomID, background: data.background});
+                return ({roomColors: newRoomColors});
+            })
+        });
+
+        this.socket.on('roomEdit', (data) => {  //DO THIS IN A SMARTER WAY U DUMB
+            console.log(data);
+            this.setState(prevState => {
+                let newFieldColors = prevState.fieldColors;
+                if(data.isDelete)
+                {
+                    newFieldColors[data.cell] = '';
+                }
+                else
+                {
+                    newFieldColors[data.cell] = this.state.roomColors.find(x => x.id == data.roomID).background;
+                }                
+                return ({fieldColors: newFieldColors});
             })
         });
     }
@@ -98,9 +128,21 @@ class Map extends Component {
     handleClick = (e) => {
         console.log("Edit Mode: " + this.props.isEditMode);
         if (!this.props.isEditMode) {
+            const position = parseInt(e.currentTarget.id.split('cell_').pop());
+            const field = this.state.roomFields.find(x => x.field_id == position);
+
+            if(field)
+            {
+                this.props.onRoomChange(field.rooms_id);
+            }
+            else
+            {
+                this.props.onRoomChange(null);
+            }            
+
             this.socket.emit('move', {
                 mapID: this.props.mapID,
-                position: parseInt(e.currentTarget.id.split('cell_').pop())
+                position: position
             })
         }
         else if (this.props.isEditMode) {
@@ -116,32 +158,24 @@ class Map extends Component {
         console.log("GET MAP mapID: " + this.props.mapID)
         axios.get(`/map/get/${mapID}`)
             .then(function (response) {
+                console.log(response.data);
                 const newMap = [];
-                response.data.forEach(user => {
+                response.data.users.forEach(user => {
                     newMap[user.position] = user.users_id;
                 });
 
-                self.setState({ map: newMap });
+                let newFieldColors = [];
+                response.data.fields.forEach(field => {                    
+                    newFieldColors[field.field_id] = response.data.colors.find(x => x.id == field.rooms_id).background;
+                })
 
-                /*self.setState((prevState) => 
-                {
-                    let newMap = prevState.map;
-                    let updatedRows = [];
-                    response.data.forEach(user => {
-                        newMap[user.position] = user.users_id;
-                        let updatedRow = Math.floor(user.position/self.MAP_SIZE);
-
-                        if(updatedRows.indexOf(updatedRow) === -1) {
-                            updatedRows.push(updatedRow);
-                        }
-                        
-                    });
-
-                    return ({
-                        map: newMap,
-                        updatedRows: updatedRows
-                    });
-                })*/
+                console.log(response.data.colors);
+                self.setState({ 
+                    map: newMap,
+                    roomFields: response.data.fields,
+                    roomColors: response.data.colors,
+                    fieldColors: newFieldColors
+                });
             })
             .catch(function (error) {
                 console.log(error);
@@ -154,14 +188,15 @@ class Map extends Component {
         for (let i = 0; i < this.MAP_SIZE; i++) {
             let mapRow = [];
             for (let j = 0; j < this.MAP_SIZE; j++) {
-                //this.state.map[i * this.MAP_SIZE + j]
+                const cellID = i * this.MAP_SIZE + j;
                 mapRow.push(
                     <Cell
                         key={j}
-                        id={`cell_${i * this.MAP_SIZE + j}`}
+                        id={`cell_${cellID}`}
+                        background={this.state.fieldColors[cellID]}
                         value={
                             <UserCell
-                                userID={this.state.map[i * this.MAP_SIZE + j]}
+                                userID={this.state.map[cellID]}
                             />
                         }
                         onDoubleClick={this.handleClick}
@@ -169,7 +204,6 @@ class Map extends Component {
                 );
             }
 
-            //console.log(this.state.updatedRows);
             map.push(<Row key={i} children={mapRow} />);
         }
 

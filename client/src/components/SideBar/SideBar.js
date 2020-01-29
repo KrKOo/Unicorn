@@ -30,6 +30,10 @@ class SideBar extends Component {
 		{
 			this.props.onCreateRoomToggle();			
 		}
+		else if(e.currentTarget.id == 'leaveMapButton')
+		{
+			this.props.onDisconnect();
+		}
 	}
 
 	toggleSideBar = (e) =>
@@ -77,8 +81,16 @@ class SideBar extends Component {
 					</div>
 
 					<footer>
-						<button><i class="fas fa-phone-slash"></i></button>
-						<button><i class="fas fa-cog"></i></button>
+						<button 
+							id="leaveMapButton"
+							onClick={this.handleClick}>
+								<i class="fas fa-phone-slash"></i>
+						</button>
+						<button 
+							id="settingsButton"
+							onClick={this.handleClick}>
+								<i class="fas fa-cog"></i>
+						</button>
 						<button 
 							id="mapModeButton" 
 							onClick={this.handleClick}>

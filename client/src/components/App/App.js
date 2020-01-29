@@ -12,7 +12,8 @@ import FriendList from '../FriendList/FriendList';
 import SideBar from '../SideBar/SideBar';
 import SideBarCategory from '../SideBar/SideBarCategory';
 import UserInfo from '../UserInfo/UserInfo';
-import MapCreateDialog from '../MapCreateDialog/MapCreateDialog';
+import RoomCreateDialog from '../RoomCreateDialog/RoomCreateDialog';
+import AlertBox from '../AlertBox/AlertBox';
 import { Resizable } from "re-resizable";
 
 
@@ -23,8 +24,11 @@ class App extends Component {
 		this.state = {
 			chatWidth: 100,
 			mapID: 1,
+			roomID: null,
 			isEditMode: false,
-			showCreateRoomDialog: false
+			showUserInfo: false,
+			showCreateRoomDialog: false,
+			alertText: ''
 		}
 		this.sideBar = React.createRef();
 		this.socket = openSocket('http://localhost:9000');
@@ -34,33 +38,38 @@ class App extends Component {
 		this.socket.emit('joinMap', this.state.mapID);
 	}
 	componentDidMount() {
-		// fetch("/users").then(async (res) => {
-		// 	const text = await res.text()
-		// 	console.log(text);
-		// })	
+
 	}
 
 	onSideBarToggle = (state) => 
 	{
-		console.log(this.sideBar.current.offsetWidth)
-		//const chatWidth = (state ? windows.innerWidth : )
-		//this.setState({chatWidth: chatWidth});
-		
+		console.log(this.sideBar.current.offsetWidth)		
 	}
 
 	changeMap = (mapID) =>
 	{
 		this.socket.emit('leaveMap', this.state.mapID);
-		this.setState({mapID: mapID});		
-		this.socket.emit('joinMap', mapID);
+		
+		if(mapID !== undefined)
+		{		
+			console.log("athadfuaduuadfgu");
+			this.setState({mapID: mapID});
+			this.socket.emit('joinMap', mapID);
+		}		
 	}
 	
 	mapModeChange = () => 
 	{
 		this.setState((prevState) => 
-		{
+		{	
+			let alertText = '';
+			if(!prevState.isEditMode)
+			{
+				alertText = 'Edit Mode';
+			}
 			return {
-				isEditMode: !prevState.isEditMode
+				isEditMode: !prevState.isEditMode,
+				alertText: alertText
 			}
 		})
 	}
@@ -75,31 +84,79 @@ class App extends Component {
 		})
 	}
 
+	onRoomChange = (roomID) => 
+	{
+		if(this.state.roomID != roomID)
+		{
+			if(this.state.roomID)
+			{
+				this.socket.emit('leaveRoom', this.state.roomID);
+			}
+	
+			if(roomID)
+			{
+				this.socket.emit('joinRoom', roomID);	
+				console.log("Left room: " + this.state.roomID);
+			}
+	
+			this.setState({roomID: roomID});
+			
+			console.log("Joined room: " + roomID);
+		}
+			
+	}
+
 	render() {
 		return (
-			<div className={styles.App}>
-				{/*<UserInfo className={styles.UserInfo} />*/}
+			<div className={styles.App}>				
+				{this.state.showUserInfo && <UserInfo className={styles.UserInfo} />}
 
-				{this.state.showCreateRoomDialog && <MapCreateDialog className={styles.MapCreateDialog} onToggle={this.createRoomToggle}/>}
+				{this.state.showCreateRoomDialog && 
+					<RoomCreateDialog 
+						className={styles.MapCreateDialog} 
+						socket={this.socket}
+						onToggle={this.createRoomToggle}
+						mapID={this.state.mapID}
+					/>}
 				
-				<SideBar className={styles.SideBar} toggle="false" onMapModeChange={this.mapModeChange} onCreateRoomToggle={this.createRoomToggle}>
-					<SideBarCategory title="Server">
-						<ServerList className={styles.ServerList} onMapChange={this.changeMap}/>
-						<RoomList className={styles.RoomList}/>
-					</SideBarCategory>
-					<SideBarCategory title="Friends">
-						<FriendList className={styles.FriendList}/>
-					</SideBarCategory>
+				<SideBar 
+					className={styles.SideBar} 
+					toggle="false" 
+					onMapModeToggle={this.mapModeChange} 
+					onCreateRoomToggle={this.createRoomToggle}
+					onChangeMap={this.changeMap}>
+						<SideBarCategory title="Server">
+							<ServerList className={styles.ServerList} onMapChange={this.changeMap}/>
+							<RoomList className={styles.RoomList}/>
+						</SideBarCategory>
+						<SideBarCategory title="Friends">
+							<FriendList className={styles.FriendList}/>
+						</SideBarCategory>
 				</SideBar>
 
 				<div className={styles.middleBar}>
+					<AlertBox className={styles.AlertBox} text={this.state.alertText}/>
 					<div className={styles.mapContainer}>
-						<Map className={styles.Map} id="Map" socket={this.socket} mapID={this.state.mapID} isEditMode={this.state.isEditMode}/>								
+						<Map 
+							className={styles.Map} 
+							id="Map" 
+							socket={this.socket} 
+							mapID={this.state.mapID} 
+							onRoomChange={this.onRoomChange}
+							isEditMode={this.state.isEditMode}
+						/>								
 					</div>
 					
 					<div className={styles.chatContainer}>
-						<Chat className={styles.Chat} id={styles.privateChat} socket={this.socket} mapID={this.state.mapID}/>
-						<Chat className={styles.Chat} id={styles.publicChat} socket={this.socket} mapID={this.state.mapID}/>
+						<Chat className={styles.Chat} id={styles.privateChat} socket={this.socket} roomName={`map${this.state.mapID}`}/>
+						<Chat 
+							style={!this.state.roomID ? {display: 'none'} : {}}
+							className={styles.Chat} 
+							id={styles.publicChat} 
+							socket={this.socket} 
+							roomName={`room${this.state.roomID}`}
+						/>
+					
 					</div>
 				</div>
 				

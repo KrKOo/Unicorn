@@ -1,0 +1,15 @@
+@import '../../components/shared.scss';
+
+.container{
+    background: $primaryColor;
+    width: 100px;
+    text-align: center;  
+    
+    p
+    {
+        font-weight: bold;
+        color: white;
+        font-size: 20px;
+        padding: 5px;
+    }
+}
