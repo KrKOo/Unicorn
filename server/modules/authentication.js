@@ -11,7 +11,7 @@ export const login = (username, password) => {
         // const { error } = loginValidation({ username: username, password: password });
         // if (error) return reject(error.details[0].context.label);
         let res;
-        database.query('SELECT password FROM users WHERE username=?', [username])
+        database.query('SELECT password FROM user WHERE username=?', [username])
             .then(result => {    
                
                 if (result.length === 0) 
@@ -22,7 +22,7 @@ export const login = (username, password) => {
             })
             .then(bcryptResult => {
                 if (bcryptResult) {
-                    return database.query('SELECT id FROM users WHERE username = ?', [username])
+                    return database.query('SELECT id FROM user WHERE username = ?', [username])
                 }
                 else {
                     throw "Wrong Username or Password";
@@ -42,7 +42,7 @@ export const login = (username, password) => {
                 return token;
             })    
             .then((token) => {
-                database.query('UPDATE users SET last_login = NOW() WHERE username = ?', [username]) //Update the last_login time
+                database.query('UPDATE user SET last_login = NOW() WHERE username = ?', [username]) //Update the last_login time
 
                 return resolve({
                     username: username,
@@ -62,12 +62,12 @@ export const register = (username, password, email) => {
         if (error) return reject(error.details[0].context.label);
 
         
-        database.query('SELECT EXISTS(SELECT * FROM users WHERE username=?)', [username]) //Check if the user exists in the database
+        database.query('SELECT EXISTS(SELECT * FROM user WHERE username=?)', [username]) //Check if the user exists in the database
             .then(result => {
                 if (Object.values(result[0])[0])
                     throw 'This username is already taken';                    
 
-                return database.query('SELECT EXISTS(SELECT * FROM users WHERE email=?)', [email]); //Check if the e-mail exists in the database
+                return database.query('SELECT EXISTS(SELECT * FROM user WHERE email=?)', [email]); //Check if the e-mail exists in the database
             })
             .then(result => {
                 if (Object.values(result[0])[0])
@@ -77,7 +77,7 @@ export const register = (username, password, email) => {
             })
             .then((hashedPassword) => {
                 console.log(hashedPassword);
-                return database.query('INSERT INTO users (username, password, email, created_at) VALUES (?, ?, ?, NOW())', 
+                return database.query('INSERT INTO user (username, password, email, created_at) VALUES (?, ?, ?, NOW())', 
                 [username, hashedPassword, email, 'user']);   //Insert the user to the database                
             })
             .then(() => {

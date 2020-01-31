@@ -10,6 +10,44 @@
         flex-grow: 1;
         overflow-y: auto;
         color: $white;
+
+        
+
+        li
+        {
+            display: flex;
+            flex-direction: row;
+            margin: 10px 0px;
+            .flexImage
+            {
+                width: 50px;
+                img
+                {
+                    width: 90%;
+                    border-radius: 50%;
+                }
+            }
+            .flexContent
+            {
+                flex-grow: 1;
+
+                .username
+                {
+                    padding: 0px 10px;
+                    color: $primaryColor;
+                    font-size: 20px;
+                    font-weight: 550;
+                }
+
+                .text
+                {
+                    padding: 5px 10px;
+                    color: $white;
+
+                }
+            }
+        }
+        
     }
     
     .inputForm

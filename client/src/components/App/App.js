@@ -23,7 +23,7 @@ class App extends Component {
 		super();
 		this.state = {
 			chatWidth: 100,
-			mapID: 1,
+			mapID: 0,
 			roomID: null,
 			isEditMode: false,
 			showUserInfo: false,

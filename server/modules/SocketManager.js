@@ -75,7 +75,7 @@ export default class SocketManager {
 
             if(!isJoin)
             {
-                this.db.query(`SELECT position FROM user_position WHERE users_id = ?`, [userID])
+                this.db.query(`SELECT position FROM user_position WHERE user_id = ?`, [userID])
                 .then(result => {
                     if(result[0] != undefined)
                     {
@@ -84,7 +84,7 @@ export default class SocketManager {
                     console.log(data);
                     this.io.in(`map${mapID}`).emit('mapEvent', data);
 
-                    this.db.query(`DELETE FROM user_position WHERE users_id = ?`, [userID]);
+                    this.db.query(`DELETE FROM user_position WHERE user_id = ?`, [userID]);
                 })
                 .catch((err) => {
                     throw err;
@@ -144,15 +144,26 @@ export default class SocketManager {
             
         try
         {
-            const decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
-            console.log(cookies.token);
+            const decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});            
+            var userID = decodedToken.userID;
+
             data.username = decodedToken.username;
+            const roomID = data.roomName.replace(/\D/g,'');
+            console.log(roomID);
 
-            console.log(data.roomName);
-
-            this.io.in(data.roomName).emit('message', data); //Room name is used instead of ID => can be used on both MAPs and ROOMs
+            /*this.db.query("INSERT INTO message (text, sent_at, room_id, user_id) VALUES (?, NOW(), ?, ?)",
+                [data.text, roomID, userID])
+            .then(() => 
+            {*/
+                this.io.in(data.roomName).emit('message', data); //Room name is used instead of ID => can be used on both MAPs and ROOMs
             
-            console.log(data);
+                console.log(data);
+            /*})
+            .catch(err => {
+                console.log(err);
+            });*/
+
+            
         }
         catch(err) {
             console.log(err);
@@ -167,7 +178,7 @@ export default class SocketManager {
             var username = decodedToken.username;   
             var userID = decodedToken.userID;
                         
-            this.db.query(`SELECT position FROM user_position WHERE users_id IN (SELECT id FROM users WHERE username = ?)`, [username])
+            this.db.query(`SELECT position FROM user_position WHERE user_id IN (SELECT id FROM user WHERE username = ?)`, [username])
                 .then(result => {
                     if(result[0] != undefined)
                     {
@@ -179,8 +190,8 @@ export default class SocketManager {
                     }                    
                 })
                 .then(() => {
-                    return this.db.query(`INSERT INTO user_position (users_id, servers_id, position) 
-                        VALUES ((SELECT id FROM users WHERE username=?), ?, ?) ON DUPLICATE KEY UPDATE servers_id=?, position=?`, 
+                    return this.db.query(`INSERT INTO user_position (user_id, server_id, position) 
+                        VALUES ((SELECT id FROM user WHERE username=?), ?, ?) ON DUPLICATE KEY UPDATE server_id=?, position=?`, 
                         [username, data.mapID, data.position, data.mapID, data.position])                       
                 })
                 .then(() => {
@@ -221,7 +232,7 @@ export default class SocketManager {
         })
 
         hashPassword.then(hashedPassword => {
-            return this.db.query('INSERT INTO rooms (name, background, password, saveMessages, servers_id, users_id) VALUES (?, ?, ?, ?, ?, ?)', 
+            return this.db.query('INSERT INTO room (name, background, password, save_messages, server_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
             [roomName, roomBackground, hashedPassword, saveMessages, mapID, userID])
         })        
         .then((result) => 
@@ -244,14 +255,15 @@ export default class SocketManager {
             var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']}); 
             var userID = decodedToken.userID;
 
-            let roomID;
+            let roomID, background;
 
-            this.db.query("SELECT id FROM rooms WHERE users_id=?", [userID])
+            this.db.query("SELECT id, background FROM room WHERE user_id=?", [userID])
             .then(result => {
                 if(result[0] != undefined)
                 {
                     roomID = result[0].id;
-                    return this.db.query("SELECT rooms_id FROM room_fields WHERE field_id = ? AND servers_id = ?", 
+                    background = result[0].background;
+                    return this.db.query("SELECT room_id FROM field WHERE id = ? AND server_id = ?", 
                         [data.cell, data.mapID])
                 }
                 else
@@ -262,22 +274,23 @@ export default class SocketManager {
             .then(result => {
                 if(result[0] === undefined) //The field is not owned by anyone
                 {
-                    return this.db.query("INSERT INTO room_fields (rooms_id, servers_id, field_id) VALUES (?, ?, ?)",
-                        [roomID, data.mapID, data.cell]);
+                    return this.db.query("INSERT INTO field (id, room_id, server_id) VALUES (?, ?, ?)",
+                        [data.cell, roomID, data.mapID]);
                 }
-                else if(result[0].rooms_id == roomID)  //The room is owned by this user
+                else if(result[0].room_id == roomID)  //The room is owned by this user
                 {
                     data.isDelete = true;
-                    return this.db.query("DELETE FROM room_fields WHERE rooms_id = ? AND servers_id = ? AND field_id = ?", 
+                    return this.db.query("DELETE FROM field WHERE room_id = ? AND server_id = ? AND id = ?", 
                         [roomID, data.mapID, data.cell])
                 }
-                else if(result[0].rooms_id != roomID) //The room is owned by another user
+                else if(result[0].room_id != roomID) //The room is owned by another user
                 {
                     throw 'The cell does not belong to the user';
                 }                
             })
             .then(() => {
                 data.roomID = roomID;
+                data.background = background;
                 console.log(data);
                 this.io.in(`map${data.mapID}`).emit('roomEdit', data);
             })

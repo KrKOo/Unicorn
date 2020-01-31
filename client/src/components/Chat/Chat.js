@@ -77,8 +77,18 @@ class Chat extends Component{
     render() {
         return <div className={`${styles.Chat} ${this.props.className}`} id={this.props.id} style={this.props.style}>
             <ul className={`chatMessages ${styles.messages}`}>
-                <li>John: Hello my name is John</li>
-                {this.state.chatHistory.map(message => <li>{`${message['username']}: ${message['text']}`}</li>)}  {/*TODO: Add componentShouldUpdate support*/}
+                {this.state.chatHistory.map(message =>
+                    <li>
+                    
+                        <div className={styles.flexImage}>
+                            <img src="https://www.appliedlogistics.co.nz/wp-content/uploads/2018/01/person-placeholder.jpg" className={styles.profileImg}/>
+                        </div>
+                        <div className={styles.flexContent}>
+                            <p className={styles.username}>{message['username']}</p>
+                            <p className={styles.text}>{message['text']}</p>
+                        </div>
+                    </li>
+                )}
             
             </ul>
             <form onSubmit={this.handleSubmit} className={styles.inputForm}>

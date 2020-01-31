@@ -53,10 +53,7 @@ class Map extends Component {
         this.socket = this.props.socket;
 
         this.state = {
-            map: [],
-            fieldColors: [],
-            roomColors: [],
-            roomFields: []
+            map: []
         }
     }
 
@@ -71,7 +68,7 @@ class Map extends Component {
                 this.setState(prevState => {
                     let newMap = prevState.map;
 
-                    newMap[data.lastPosition] = null;
+                    newMap[data.lastPosition].user_id = null;
                     return {
                         map: newMap
                     }
@@ -84,9 +81,13 @@ class Map extends Component {
             
             this.setState(prevState => {
                 let newMap = prevState.map;
-                newMap[data.position] = data.userID;
+
+                newMap[data.position] = newMap[data.position] || {};
+
+                newMap[data.position].user_id = data.userID;
                 if (data.lastPosition !== undefined) {
-                    newMap[data.lastPosition] = null;
+                    newMap[data.lastPosition] = newMap[data.lastPosition] || {};
+                    newMap[data.lastPosition].user_id = null;
                 }
                 return {
                     map: newMap
@@ -94,27 +95,24 @@ class Map extends Component {
             })
         });
 
-        this.socket.on('roomCreate', (data) => {
+        /*this.socket.on('roomCreate', (data) => { //TODO
             this.setState(prevState => {
                 let newRoomColors = prevState.roomColors;
                 newRoomColors.push({id: data.roomID, background: data.background});
                 return ({roomColors: newRoomColors});
             })
-        });
+        });*/
 
-        this.socket.on('roomEdit', (data) => {  //DO THIS IN A SMARTER WAY U DUMB
-            console.log(data);
+        this.socket.on('roomEdit', (data) => {
+            console.log(data);            
+
             this.setState(prevState => {
-                let newFieldColors = prevState.fieldColors;
-                if(data.isDelete)
-                {
-                    newFieldColors[data.cell] = '';
-                }
-                else
-                {
-                    newFieldColors[data.cell] = this.state.roomColors.find(x => x.id == data.roomID).background;
-                }                
-                return ({fieldColors: newFieldColors});
+                let newMap = prevState.map;
+                newMap[data.cell] = newMap[data.cell] || {};
+                newMap[data.cell].room_id = data.roomID;
+                newMap[data.cell].background = data.background;
+
+                return({map: newMap});
             })
         });
     }
@@ -129,16 +127,18 @@ class Map extends Component {
         console.log("Edit Mode: " + this.props.isEditMode);
         if (!this.props.isEditMode) {
             const position = parseInt(e.currentTarget.id.split('cell_').pop());
-            const field = this.state.roomFields.find(x => x.field_id == position);
 
-            if(field)
+            if(this.state.map[position])
             {
-                this.props.onRoomChange(field.rooms_id);
+                this.props.onRoomChange(this.state.map[position].room_id);
+                console.log("Position: " + position);
+                console.log("Room Change: " + this.state.map[position].room_id);
             }
             else
             {
                 this.props.onRoomChange(null);
             }            
+            
 
             this.socket.emit('move', {
                 mapID: this.props.mapID,
@@ -159,14 +159,23 @@ class Map extends Component {
         axios.get(`/map/get/${mapID}`)
             .then(function (response) {
                 console.log(response.data);
+
                 const newMap = [];
+                response.data.forEach(field => {
+                    newMap[field.id] = field;
+                })
+
+                self.setState({map: newMap});
+
+                /*const newMap = [];
                 response.data.users.forEach(user => {
-                    newMap[user.position] = user.users_id;
+                    newMap[user.position] = user.user_id;
                 });
 
                 let newFieldColors = [];
                 response.data.fields.forEach(field => {                    
-                    newFieldColors[field.field_id] = response.data.colors.find(x => x.id == field.rooms_id).background;
+                    newFieldColors[field.id] = response.data.colors.find(x => x.id == field.room_id).background;
+                    
                 })
 
                 console.log(response.data.colors);
@@ -175,7 +184,9 @@ class Map extends Component {
                     roomFields: response.data.fields,
                     roomColors: response.data.colors,
                     fieldColors: newFieldColors
-                });
+                });*/
+
+                
             })
             .catch(function (error) {
                 console.log(error);
@@ -193,10 +204,10 @@ class Map extends Component {
                     <Cell
                         key={j}
                         id={`cell_${cellID}`}
-                        background={this.state.fieldColors[cellID]}
+                        background={(this.state.map[cellID])&&this.state.map[cellID].background}
                         value={
                             <UserCell
-                                userID={this.state.map[cellID]}
+                                userID={(this.state.map[cellID])&&this.state.map[cellID].user_id}
                             />
                         }
                         onDoubleClick={this.handleClick}
