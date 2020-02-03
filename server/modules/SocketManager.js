@@ -8,7 +8,11 @@ export default class SocketManager {
         this.io = io;
         this.db = new Database();
 
-        this.io.on('connection', (socket) => {
+        this.io.on('connection', (socket) => {            
+            socket.on('setup', () => {
+                this.connect(socket);
+            });
+
             socket.on('joinMap', async (mapID) => {
                 this.mapEvent(socket, mapID, true);
             });
@@ -17,8 +21,8 @@ export default class SocketManager {
                 this.roomEvent(socket, roomID, true);
             });
 
-            socket.on('leaveMap', async mapID => {
-                this.mapEvent(socket, mapID, false);
+            socket.on('leaveMap', async (mapID, unsubscribe) => {
+                this.mapEvent(socket, mapID, false, unsubscribe);
             });
 
             socket.on('leaveRoom', async roomID => {
@@ -49,22 +53,39 @@ export default class SocketManager {
         })
     }
 
-    disconnect(socket) {
+    connect(socket)
+    {
+        console.log("Connect asdfahsfghaig");
+        const cookies = cookie.parse(socket.handshake.headers.cookie);
+        try {
+            var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
+            //var username = decodedToken.username;   
+            var userID = decodedToken.userID;  
 
-        console.log("diconnected");
+            let data = {
+                userID: userID
+            }
+
+            socket.emit('setup', data);
+        }
+        catch(error)
+        {
+            console.log(error);
+        } 
     }
 
-    mapEvent(socket, mapID, isJoin) {
-        if(isJoin)
-        {
-            socket.join(`map${mapID}`);
-        }
-        
+    disconnect(socket) {   
+        console.log("Disconnect");
+        this.mapEvent(socket, null, false) //leave the map the user is currently joined
+    }
+
+    mapEvent(socket, mapID, isJoin, unsubscribe) {     
+        console.log("Map join")
         const cookies = cookie.parse(socket.handshake.headers.cookie);
         try {
             var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});
             var username = decodedToken.username;   
-            var userID = decodedToken.userID;
+            var userID = decodedToken.userID;            
 
             var data = {
                 userID: userID,
@@ -73,26 +94,27 @@ export default class SocketManager {
                 isJoin: isJoin
             }
 
-            if(!isJoin)
+            if(isJoin)
             {
-                this.db.query(`SELECT position FROM user_position WHERE user_id = ?`, [userID])
+                socket.join(`map${mapID}`);
+                this.io.in(`map${mapID}`).emit('mapEvent', data);
+            }
+            else
+            {
+                this.db.query(`SELECT server_id, position FROM user_position WHERE user_id = ?`, [userID])
                 .then(result => {
                     if(result[0] != undefined)
                     {
                         data.lastPosition = result[0].position;
+                        this.io.in(`map${result[0].server_id}`).emit('mapEvent', data);
                     }                    
-                    console.log(data);
-                    this.io.in(`map${mapID}`).emit('mapEvent', data);
+                    console.log(data);                    
 
                     this.db.query(`DELETE FROM user_position WHERE user_id = ?`, [userID]);
                 })
                 .catch((err) => {
                     throw err;
                 })
-            }
-            else
-            {
-                this.io.in(`map${mapID}`).emit('mapEvent', data);
             }
             
             console.log((isJoin ? 'Joined':'Left') + ' map ' + mapID);
@@ -102,10 +124,10 @@ export default class SocketManager {
             console.log(error);
         }   
         
-        if(!isJoin)
+        if(!isJoin && unsubscribe)
         {
             socket.leave(`map${mapID}`);
-        }
+        }      
     }
 
     roomEvent(socket, roomID, isJoin) {
@@ -255,14 +277,12 @@ export default class SocketManager {
             var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']}); 
             var userID = decodedToken.userID;
 
-            let roomID, background;
-
-            this.db.query("SELECT id, background FROM room WHERE user_id=?", [userID])
+            this.db.query(`SELECT room.id, room.background FROM room WHERE room.user_id=?`, [userID])
             .then(result => {
                 if(result[0] != undefined)
                 {
-                    roomID = result[0].id;
-                    background = result[0].background;
+                    data.roomID = result[0].id;
+                    data.background = result[0].background;
                     return this.db.query("SELECT room_id FROM field WHERE id = ? AND server_id = ?", 
                         [data.cell, data.mapID])
                 }
@@ -275,22 +295,20 @@ export default class SocketManager {
                 if(result[0] === undefined) //The field is not owned by anyone
                 {
                     return this.db.query("INSERT INTO field (id, room_id, server_id) VALUES (?, ?, ?)",
-                        [data.cell, roomID, data.mapID]);
+                        [data.cell, data.roomID, data.mapID]);
                 }
-                else if(result[0].room_id == roomID)  //The room is owned by this user
+                else if(result[0].room_id == data.roomID)  //The room is owned by this user
                 {
                     data.isDelete = true;
                     return this.db.query("DELETE FROM field WHERE room_id = ? AND server_id = ? AND id = ?", 
-                        [roomID, data.mapID, data.cell])
+                        [data.roomID, data.mapID, data.cell])
                 }
-                else if(result[0].room_id != roomID) //The room is owned by another user
+                else if(result[0].room_id != data.roomID) //The room is owned by another user
                 {
                     throw 'The cell does not belong to the user';
                 }                
             })
             .then(() => {
-                data.roomID = roomID;
-                data.background = background;
                 console.log(data);
                 this.io.in(`map${data.mapID}`).emit('roomEdit', data);
             })

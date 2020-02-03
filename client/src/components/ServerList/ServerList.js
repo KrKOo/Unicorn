@@ -28,7 +28,7 @@ class ServerList extends Component {
 
 		if(className == "mapName")
 		{
-			this.props.onMapChange(e.target.getAttribute("mapID"));
+			this.props.onMapChange(e.target.getAttribute("mapID"), true);
 		}
 	}
 

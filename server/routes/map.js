@@ -22,49 +22,19 @@ router.get('/', function(req, res, next) {   //get all servers
 router.get('/get/:id', function(req, res, next) {   //get the map by ID
     const mapID = req.params.id;
     let resData = {};
-    
-    /*const sql = `SELECT
-                    user_position.users_id, 
-                    user_position.position, 
-                    rooms.id, 
-                    rooms.background, 
-                    room_fields.field_id, 
-                    room_fields.rooms_id
-                FROM
-                    user_position
-                INNER JOIN rooms
-                    ON user_position.servers_id = rooms.servers_id
-                INNER JOIN room_fields
-                    ON user_position.servers_id = room_fields.servers_id
-                WHERE user_position.servers_id = ?`
 
-    database.query(sql, [mapID])
-
-
-    
-    .then(result => {
-        console.log(result);
-        res.send(result);
-        //resData.users = result;
-        //return database.query('SELECT id, background FROM rooms WHERE servers_id = ?', [mapID])    
-    })
-    .catch(err => {
-        console.log(err);
-    })*/
-
-    /*SELECT room_fields.field_id, room_fields.rooms_id, room_fields.servers_id, user_position.users_id, rooms.background
-FROM room_fields 
-LEFT JOIN user_position ON user_position.position = room_fields.field_id AND user_position.servers_id = 0
-LEFT JOIN rooms ON rooms.id = room_fields.rooms_id
-WHERE room_fields.servers_id = 0 */
-
-    database.query(`SELECT field.id, field.room_id, field.server_id, user_position.user_id, room.background
-                    FROM field 
-                    LEFT JOIN user_position ON user_position.position = field.id AND user_position.server_id = ?
+    database.query(`SELECT field.id, field.server_id, field.room_id, null AS user_id, room.background
+                    FROM field
                     LEFT JOIN room ON room.id = field.room_id
-                    WHERE field.server_id = ? `, [mapID, mapID])
+                    WHERE field.server_id = ?
+                    UNION
+                    SELECT user_position.position, user_position.server_id, null, user_position.user_id, room.background
+                    FROM user_position
+                    LEFT JOIN room ON room.id = (SELECT field.room_id FROM field WHERE field.id = user_position.position)
+                    WHERE user_position.server_id = ?`, [mapID, mapID])
     .then(result => {
         res.send(result);
+        
     })
     .catch(err => {
         console.log(err);

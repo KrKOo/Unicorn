@@ -109,9 +109,23 @@ class Map extends Component {
             this.setState(prevState => {
                 let newMap = prevState.map;
                 newMap[data.cell] = newMap[data.cell] || {};
-                newMap[data.cell].room_id = data.roomID;
-                newMap[data.cell].background = data.background;
+                               
+                
+                if(data.isDelete)
+                {
+                    newMap[data.cell].background = null;
+                    newMap[data.cell].room_id = null;
+                }
+                else
+                {
+                    newMap[data.cell].background = data.background;
+                    newMap[data.cell].room_id = data.roomID;
+                }                
 
+                if(newMap[data.cell].user_id == this.props.userID)
+                {
+                    this.props.onRoomChange(newMap[data.cell].room_id);
+                }
                 return({map: newMap});
             })
         });
@@ -130,9 +144,7 @@ class Map extends Component {
 
             if(this.state.map[position])
             {
-                this.props.onRoomChange(this.state.map[position].room_id);
-                console.log("Position: " + position);
-                console.log("Room Change: " + this.state.map[position].room_id);
+                this.props.onRoomChange(this.state.map[position].room_id || null);
             }
             else
             {
@@ -158,35 +170,13 @@ class Map extends Component {
         console.log("GET MAP mapID: " + this.props.mapID)
         axios.get(`/map/get/${mapID}`)
             .then(function (response) {
-                console.log(response.data);
 
                 const newMap = [];
                 response.data.forEach(field => {
                     newMap[field.id] = field;
                 })
 
-                self.setState({map: newMap});
-
-                /*const newMap = [];
-                response.data.users.forEach(user => {
-                    newMap[user.position] = user.user_id;
-                });
-
-                let newFieldColors = [];
-                response.data.fields.forEach(field => {                    
-                    newFieldColors[field.id] = response.data.colors.find(x => x.id == field.room_id).background;
-                    
-                })
-
-                console.log(response.data.colors);
-                self.setState({ 
-                    map: newMap,
-                    roomFields: response.data.fields,
-                    roomColors: response.data.colors,
-                    fieldColors: newFieldColors
-                });*/
-
-                
+                self.setState({map: newMap});                
             })
             .catch(function (error) {
                 console.log(error);

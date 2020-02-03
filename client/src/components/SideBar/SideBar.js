@@ -32,7 +32,7 @@ class SideBar extends Component {
 		}
 		else if(e.currentTarget.id == 'leaveMapButton')
 		{
-			this.props.onDisconnect();
+			this.props.onDisconnect(undefined, false);
 		}
 	}
 

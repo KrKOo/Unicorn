@@ -91,9 +91,19 @@ class Chat extends Component{
                 )}
             
             </ul>
-            <form onSubmit={this.handleSubmit} className={styles.inputForm}>
-                <input type="text" value={this.state.inputText} name="inputText" placeholder="Message..." onChange={this.handleChange} autoComplete="off"/>                
-            </form>
+            {!this.props.isDisabled &&
+                <form onSubmit={this.handleSubmit} className={styles.inputForm}>
+                    <input 
+                        type="text" 
+                        value={this.state.inputText} 
+                        name="inputText" 
+                        placeholder="Message..." 
+                        onChange={this.handleChange} 
+                        autoComplete="off"
+                    />                
+                </form>
+            }
+            
         </div>;
     }
 }
