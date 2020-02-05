@@ -8,7 +8,7 @@ class UserCell extends Component{
     {
         super(props);
         this.state = {
-
+            isMenuOpen: false
         }
 
         
@@ -19,13 +19,31 @@ class UserCell extends Component{
 
     }
 
+    handleClick = (e) =>
+    {
+        console.log('asdfasdf');
+        this.setState(prevState => {
+            return ({isMenuOpen: !prevState.isMenuOpen});
+        })
+    }
+
     render() {
         return(
-            <div className={styles.container}>
+            <div>
                 {(this.props.userID) && 
-                    <img src="https://www.appliedlogistics.co.nz/wp-content/uploads/2018/01/person-placeholder.jpg" className={styles.profileImg}/>
+                    <div className={styles.container}>
+                        <div className={styles.menuContainer}>
+                            <button className={styles.menuButton} onClick={this.handleClick}><i class="fas fa-ellipsis-h"></i></button>
+                            <ul className={styles.menu}>
+                                <li>Profile</li>
+                                <li>Add Friend</li>
+                            </ul>
+                        </div>
+                        <img src="https://www.appliedlogistics.co.nz/wp-content/uploads/2018/01/person-placeholder.jpg" className={styles.profileImg}/>
+                        <p className={styles.userName}>{this.props.userID}</p>
+                    </div>
                 }
-                <p className={styles.userName}>{this.props.userID}</p>
+                
                 
             </div>
         )

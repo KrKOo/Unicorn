@@ -9,6 +9,62 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+
+    .menuContainer
+    {
+        &:hover > .menu
+        {
+            display: block;
+        }
+
+        .menuButton
+        {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 20px;
+            width: 20px;
+            
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            box-sizing: content-box;
+            padding: 4px; 
+            &:hover
+            {       
+                        
+                cursor: pointer;                
+            }
+        }
+
+        .menu
+        {
+            display: none;
+            background: $primaryDark;
+            position: absolute;
+            top: 28px;
+            right: 0px;
+            list-style: none;
+            color: white;
+
+            li
+            {
+                padding: 5px 10px;
+                &:hover
+                {
+                    cursor: pointer;
+                    background: $darkGray;
+                }
+            }
+        }
+
+        
+    }
+
+    
+
     .profileImg
     {
         

@@ -13,6 +13,7 @@ import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
 import mapRouter from './routes/map'
+import chatRouter from './routes/chat'
 //MODULES
 import sockets from './modules/sockets'
 
@@ -37,6 +38,7 @@ app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/map', mapRouter);
+app.use('/chat', chatRouter);
 
 
 server.listen(port, () => console.log(`Listening on port ${port}`))

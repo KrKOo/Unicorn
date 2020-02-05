@@ -24,7 +24,8 @@ class App extends Component {
 		this.state = {
 			userID: null,
 			chatWidth: 100,
-			mapID: 0,
+			mapID: 1,
+			idJoinedToMap: false,
 			roomID: undefined,
 			isEditMode: false,
 			showUserInfo: false,
@@ -39,7 +40,9 @@ class App extends Component {
 		});
 
 		this.socket.emit('setup');		
+
 		this.socket.emit('joinMap', this.state.mapID);
+		this.setState({isJoindedToMap: true});
 		
 	}
 	componentDidMount() {
@@ -53,23 +56,29 @@ class App extends Component {
 
 	changeMap = (mapID, unsubscribe) =>
 	{
-		if(unsubscribe)
+		console.log("Change Map: " + mapID + "  " + unsubscribe);
+		if(unsubscribe && mapID != this.state.mapID)
 		{
-			this.socket.emit('leaveMap', this.state.mapID, false);
-			this.setState({mapID: undefined});
-		}
+			this.onRoomChange(null); //Leave Room
+			this.socket.emit('leaveMap', this.state.mapID, unsubscribe);
+		
+			if(mapID !== null)
+			{		
+				this.setState({
+					mapID: mapID,
+					isJoinedToMap: true
+				});
+				this.socket.emit('joinMap', mapID);
+				
+			}
+		}		
 		else
 		{
-			this.socket.emit('leaveMap', this.state.mapID, true);
-		
-			if(mapID !== undefined)
-			{		
-				console.log("athadfuaduuadfgu");
-				this.setState({mapID: mapID});
-				this.socket.emit('joinMap', mapID);
-			}
+			this.onRoomChange(null); //Leave Room
+			this.socket.emit('leaveMap', this.state.mapID, false);
+		 	this.setState({isJoinedToMap: false});			
 		}
-				
+		
 	}
 	
 	mapModeChange = () => 
@@ -100,6 +109,7 @@ class App extends Component {
 
 	onRoomChange = (roomID) => 
 	{
+
 		if(this.state.roomID !== roomID)
 		{
 			if(this.state.roomID)
@@ -111,13 +121,12 @@ class App extends Component {
 			{
 				this.socket.emit('joinRoom', roomID);	
 				console.log("Left room: " + this.state.roomID);
-			}
-	
-			
+			}			
 		}
-		this.setState({roomID: roomID});
-			
-			console.log("Joined room: " + roomID);
+		this.setState({
+			roomID: roomID,
+			isJoinedToMap: true
+		});
 			
 	}
 
@@ -139,10 +148,10 @@ class App extends Component {
 					toggle="false" 
 					onMapModeToggle={this.mapModeChange} 
 					onCreateRoomToggle={this.createRoomToggle}
-					onChangeMap={this.changeMap}
+					onLeave={this.changeMap} //Stay on the same server but leave the MAP
 					>
 						<SideBarCategory title="Server">
-							<ServerList className={styles.ServerList} onMapChange={this.changeMap}/>
+							<ServerList className={styles.ServerList} onMapChange={this.changeMap}/> {/*Move to another server*/}
 							<RoomList className={styles.RoomList}/>
 						</SideBarCategory>
 						<SideBarCategory title="Friends">
@@ -169,15 +178,16 @@ class App extends Component {
 							className={styles.Chat} 
 							id={styles.privateChat} 
 							socket={this.socket} 
-							roomName={`map${this.state.mapID}`}
-							isDisabled={this.state.roomID===undefined}
+							mapID={`${this.state.mapID}`}
+							isDisabled={this.state.isJoinedToMap == false}
 						/>
 						<Chat 
 							style={!this.state.roomID ? {display: 'none'} : {}}
 							className={styles.Chat} 
 							id={styles.publicChat} 
 							socket={this.socket} 
-							roomName={`room${this.state.roomID}`}
+							mapID={`${this.state.mapID}`}
+							roomID={`${this.state.roomID}`}
 						/>
 					
 					</div>

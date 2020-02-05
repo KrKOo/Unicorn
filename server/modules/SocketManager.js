@@ -162,28 +162,34 @@ export default class SocketManager {
     }
 
     message(socket, data) {
-        const cookies = cookie.parse(socket.handshake.headers.cookie);
-            
+        const cookies = cookie.parse(socket.handshake.headers.cookie);            
         try
         {
             const decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']});            
             var userID = decodedToken.userID;
 
             data.username = decodedToken.username;
-            const roomID = data.roomName.replace(/\D/g,'');
-            console.log(roomID);
 
-            /*this.db.query("INSERT INTO message (text, sent_at, room_id, user_id) VALUES (?, NOW(), ?, ?)",
-                [data.text, roomID, userID])
+            this.db.query(
+                `INSERT INTO message (text, sent_at, server_id, room_id, user_id) VALUES (?, NOW(), ?, ?, ?)`, 
+                    [data.text, data.mapID, data.roomID, userID])
             .then(() => 
-            {*/
-                this.io.in(data.roomName).emit('message', data); //Room name is used instead of ID => can be used on both MAPs and ROOMs
+            {
+                if(data.roomID !== undefined)
+                {
+                    this.io.in(`room${data.roomID}`).emit('message', data);
+                }
+                else
+                {
+                    this.io.in(`map${data.mapID}`).emit('message', data);
+                }
+                
             
                 console.log(data);
-            /*})
+            })
             .catch(err => {
                 console.log(err);
-            });*/
+            });
 
             
         }
@@ -200,8 +206,15 @@ export default class SocketManager {
             var username = decodedToken.username;   
             var userID = decodedToken.userID;
                         
-            this.db.query(`SELECT position FROM user_position WHERE user_id IN (SELECT id FROM user WHERE username = ?)`, [username])
+            this.db.query(`
+                SELECT position 
+                FROM user_position 
+                WHERE user_id IN (SELECT id FROM user WHERE username = ?) OR position = ?`, [username, data.position])
                 .then(result => {
+                    if(result[1] != undefined)
+                    {
+                        throw 'The field is occupied';
+                    }
                     if(result[0] != undefined)
                     {
                         data.lastPosition = result[0].position;
@@ -277,7 +290,7 @@ export default class SocketManager {
             var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']}); 
             var userID = decodedToken.userID;
 
-            this.db.query(`SELECT room.id, room.background FROM room WHERE room.user_id=?`, [userID])
+            this.db.query(`SELECT room.id, room.background FROM room WHERE room.user_id=? AND room.server_id=?`, [userID, data.mapID])
             .then(result => {
                 if(result[0] != undefined)
                 {

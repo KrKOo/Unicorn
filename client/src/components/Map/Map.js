@@ -61,7 +61,7 @@ class Map extends Component {
         this.getMap(this.props.mapID);
 
         this.socket.on('mapEvent', (data) => {
-            console.log("mapEvent");
+            console.log(data);
             if (!data.isJoin) {
                 console.log("Left");
                 console.log(data);
@@ -130,8 +130,9 @@ class Map extends Component {
             })
         });
     }
-
+    
     componentDidUpdate(prevProps) {
+        console.log("DID UPDATE");
         if (this.props.mapID !== prevProps.mapID) {
             this.getMap(this.props.mapID);
         }
