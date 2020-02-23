@@ -7,7 +7,7 @@ import dba from '../modules/Database.js';
 
 const database = new dba();
 
-router.get('/', function(req, res, next) {   //get all servers
+router.get('/', (req, res, next) => {   //get all servers
     database.query('SELECT id, name, size FROM server')
         .then(result => {
             res.send(result);
@@ -19,18 +19,30 @@ router.get('/', function(req, res, next) {   //get all servers
     
 });
 
-router.get('/get/:id', function(req, res, next) {   //get the map by ID
+router.get('/getRooms/:id', (req, res, next) => {
+    const mapID = req.params.id;
+    database.query(`SELECT id, name FROM room 
+                    WHERE server_id = ? AND 
+                    (SELECT COUNT(*) FROM field WHERE room_id=room.id) > 0;`, [mapID])
+    .then(result => {
+        res.send(result);
+    })    
+});
+
+
+router.get('/get/:id', (req, res, next) => {   //get the map by ID
     const mapID = req.params.id;
     let resData = {};
 
-    database.query(`SELECT field.id, field.server_id, field.room_id, null AS user_id, room.background
+    database.query(`SELECT field.id, field.server_id, field.room_id, null AS user_id, room.background, null as username, null as profileImg
                     FROM field
                     LEFT JOIN room ON room.id = field.room_id
                     WHERE field.server_id = ?
                     UNION
-                    SELECT user_position.position, user_position.server_id, null, user_position.user_id, room.background
+                    SELECT user_position.position, user_position.server_id, null, user_position.user_id, room.background, user.username, user.profileImg
                     FROM user_position
                     LEFT JOIN room ON room.id = (SELECT field.room_id FROM field WHERE field.id = user_position.position)
+                    LEFT JOIN user ON user.id = user_position.user_id
                     WHERE user_position.server_id = ?`, [mapID, mapID])
     .then(result => {
         res.send(result);

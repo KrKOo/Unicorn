@@ -33,13 +33,25 @@ class Cell extends Component {
     }
 
     render() {
+        const highlightedStyle = this.props.highlighted &&
+        {
+            outlineStyle: 'dotted',
+            outlineWidth: '10px',
+            outlineOffset: '-5px',
+            borderWidth: '0px',
+            outlineColor: this.props.background
+        }
+
         return (
             <div 
                 className={styles.tableCell} 
                 id={this.props.id} 
                 onDoubleClick={this.props.onDoubleClick}
-                style={{backgroundColor: this.props.background}}>
-                    {this.props.value}
+                style={{
+                        backgroundColor: this.props.background,
+                        ...(highlightedStyle)
+                    }}>
+                {this.props.value}
             </div>
         );
     }
@@ -69,6 +81,7 @@ class Map extends Component {
                     let newMap = prevState.map;
 
                     newMap[data.lastPosition].user_id = null;
+                    newMap[data.lastPosition].username = null;
                     return {
                         map: newMap
                     }
@@ -78,6 +91,18 @@ class Map extends Component {
 
         this.socket.on('move', (data) => {
             console.log(data);
+
+            if(data.userID == this.props.userID)
+            {
+                if(this.state.map[data.position])
+                {
+                    this.props.onRoomChange(this.state.map[data.position].room_id || null);
+                }
+                else
+                {
+                    this.props.onRoomChange(null);
+                }
+            }
             
             this.setState(prevState => {
                 let newMap = prevState.map;
@@ -85,9 +110,13 @@ class Map extends Component {
                 newMap[data.position] = newMap[data.position] || {};
 
                 newMap[data.position].user_id = data.userID;
+                newMap[data.position].username = data.username;
+                newMap[data.position].profileImg = data.profileImg;
                 if (data.lastPosition !== undefined) {
                     newMap[data.lastPosition] = newMap[data.lastPosition] || {};
                     newMap[data.lastPosition].user_id = null;
+                    newMap[data.lastPosition].username = null;
+                    newMap[data.lastPosition].profileImg = null;
                 }
                 return {
                     map: newMap
@@ -141,17 +170,7 @@ class Map extends Component {
     handleClick = (e) => {
         console.log("Edit Mode: " + this.props.isEditMode);
         if (!this.props.isEditMode) {
-            const position = parseInt(e.currentTarget.id.split('cell_').pop());
-
-            if(this.state.map[position])
-            {
-                this.props.onRoomChange(this.state.map[position].room_id || null);
-            }
-            else
-            {
-                this.props.onRoomChange(null);
-            }            
-            
+            const position = parseInt(e.currentTarget.id.split('cell_').pop());       
 
             this.socket.emit('move', {
                 mapID: this.props.mapID,
@@ -171,11 +190,13 @@ class Map extends Component {
         console.log("GET MAP mapID: " + this.props.mapID)
         axios.get(`/map/get/${mapID}`)
             .then(function (response) {
-
+                console.log(response.data);
                 const newMap = [];
                 response.data.forEach(field => {
                     newMap[field.id] = field;
                 })
+
+                
 
                 self.setState({map: newMap});                
             })
@@ -183,7 +204,6 @@ class Map extends Component {
                 console.log(error);
             })
     }
-
     render() {
         console.log(this.state.map)
         let map = [];
@@ -196,9 +216,13 @@ class Map extends Component {
                         key={j}
                         id={`cell_${cellID}`}
                         background={(this.state.map[cellID])&&this.state.map[cellID].background}
+                        highlighted={(this.state.map[cellID])&&this.state.map[cellID].room_id&&this.state.map[cellID].room_id == this.props.highlightedRoom}
                         value={
                             <UserCell
                                 userID={(this.state.map[cellID])&&this.state.map[cellID].user_id}
+                                username={(this.state.map[cellID])&&this.state.map[cellID].username}
+                                profileImg={(this.state.map[cellID])&&this.state.map[cellID].profileImg}
+                                toggleUserInfo={this.props.toggleUserInfo}                                
                             />
                         }
                         onDoubleClick={this.handleClick}

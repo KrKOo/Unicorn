@@ -16,12 +16,11 @@ router.get('/get/:mapID/:roomID*?', function(req, res, next) {
     if(roomID !== undefined)
     {
         database.query(`
-            SELECT message.text, message.sent_at, user.username
+            SELECT message.text, DATE_FORMAT(sent_at,'%d.%m.%Y %H:%i') AS sent_at, user.username, user.profileImg
             FROM message
             LEFT JOIN user ON user.id = message.user_id
             WHERE message.server_id=? AND message.room_id=?`, [mapID, roomID])
         .then(result => {
-            console.log(result);
             res.send(result);        
         })
         .catch(err => {
@@ -31,12 +30,11 @@ router.get('/get/:mapID/:roomID*?', function(req, res, next) {
     else
     {
         database.query(`
-            SELECT message.text, message.sent_at, user.username
+            SELECT message.text, DATE_FORMAT(sent_at,'%d.%m.%Y %H:%i') AS sent_at, user.username, user.profileImg
             FROM message
             LEFT JOIN user ON user.id = message.user_id
             WHERE message.server_id=? AND message.room_id IS NULL`, [mapID])
         .then(result => {
-            console.log(result);
             res.send(result);        
         })
         .catch(err => {

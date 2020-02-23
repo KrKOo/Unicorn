@@ -21,10 +21,14 @@ class UserCell extends Component{
 
     handleClick = (e) =>
     {
-        console.log('asdfasdf');
-        this.setState(prevState => {
-            return ({isMenuOpen: !prevState.isMenuOpen});
-        })
+        if(e.currentTarget.className.includes('profileButton'))
+        {
+            this.props.toggleUserInfo(true, this.props.userID);
+        }
+        else if(e.currentTarget.className.includes('friendButton'))
+        {
+
+        }
     }
 
     render() {
@@ -33,14 +37,14 @@ class UserCell extends Component{
                 {(this.props.userID) && 
                     <div className={styles.container}>
                         <div className={styles.menuContainer}>
-                            <button className={styles.menuButton} onClick={this.handleClick}><i class="fas fa-ellipsis-h"></i></button>
+                            <button className={styles.menuButton}><i class="fas fa-ellipsis-h"></i></button>
                             <ul className={styles.menu}>
-                                <li>Profile</li>
-                                <li>Add Friend</li>
+                                <li onClick={this.handleClick} className="profileButton">Profile</li>
+                                <li onClick={this.handleClick} className="friendButton">Add Friend</li>
                             </ul>
                         </div>
-                        <img src="https://www.appliedlogistics.co.nz/wp-content/uploads/2018/01/person-placeholder.jpg" className={styles.profileImg}/>
-                        <p className={styles.userName}>{this.props.userID}</p>
+                        <img src={`/profileImages/${this.props.profileImg || "profilePlaceholder.jpg"}`} className={styles.profileImg}/>
+                        <p className={styles.userName}>{this.props.username}</p>
                     </div>
                 }
                 

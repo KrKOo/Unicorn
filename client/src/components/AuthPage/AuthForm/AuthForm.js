@@ -69,7 +69,8 @@ class AuthForm extends Component {
                 console.log('GOOD', await res);
                 if(res.data.error)
                 {
-                    this.setState({error: res.data.error});
+                    console.log(res.data.error);
+                    this.setState({error: res.data.error.errno});
                 }
             })
             .catch(err => {
@@ -90,7 +91,7 @@ class AuthForm extends Component {
                 
                 if(res.data.error)
                 {
-                    this.setState({error: res.data.error});
+                    this.setState({error: res.data.error.errno});
                 }
                 else
                 {

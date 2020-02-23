@@ -29,19 +29,12 @@ class Chat extends Component{
             {
                 console.log(data);
                 this.setState(prevState => {
-                    let message = {
-                        username: data.username,
-                        text: data.text
-                    }
-    
                     return {                    
-                        chatHistory: [...prevState.chatHistory, message]
+                        chatHistory: [...prevState.chatHistory, data]
                     }
                 });
-            }
-            
-        });        
-        
+            }            
+        });               
     }
 
     handleChange(e)
@@ -67,11 +60,10 @@ class Chat extends Component{
 
     componentDidUpdate(prevProps)
     {
-        if (prevProps.roomID !== this.props.roomID) {
+        if (prevProps.roomID !== this.props.roomID || prevProps.mapID !== this.props.mapID) {
           this.getMessages();
         }
         var element = document.getElementsByClassName("chatMessages");
-        console.log(element)
         element[0].scrollTop = element[0].scrollHeight;
         element[1].scrollTop = element[1].scrollHeight;
     }
@@ -94,14 +86,13 @@ class Chat extends Component{
         return <div className={`${styles.Chat} ${this.props.className}`} id={this.props.id} style={this.props.style}>
             <ul className={`chatMessages ${styles.messages}`}>
                 {this.state.chatHistory.map(message =>
-                    <li>
-                    
+                    <li>                    
                         <div className={styles.flexImage}>
-                            <img src="https://www.appliedlogistics.co.nz/wp-content/uploads/2018/01/person-placeholder.jpg" className={styles.profileImg}/>
+                            <img src={`/profileImages/${message.profileImg}`} className={styles.profileImg}/>
                         </div>
                         <div className={styles.flexContent}>
-                            <p className={styles.username}>{message['username']}</p>
-                            <p className={styles.text}>{message['text']}</p>
+                            <p className={styles.header}>{message.username}<span className={styles.time}>{message.sent_at}</span></p>
+                            <p className={styles.text}>{message.text}</p>
                         </div>
                     </li>
                 )}

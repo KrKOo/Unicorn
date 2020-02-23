@@ -24,13 +24,15 @@ class App extends Component {
 		this.state = {
 			userID: null,
 			chatWidth: 100,
-			mapID: 1,
+			mapID: 2,
 			idJoinedToMap: false,
 			roomID: undefined,
 			isEditMode: false,
 			showUserInfo: false,
+			userInfoID: null,
 			showCreateRoomDialog: false,
-			alertText: ''
+			alertText: '',
+			highlightedRoom: undefined
 		}
 		this.sideBar = React.createRef();
 		this.socket = openSocket('http://localhost:9000');
@@ -56,7 +58,6 @@ class App extends Component {
 
 	changeMap = (mapID, unsubscribe) =>
 	{
-		console.log("Change Map: " + mapID + "  " + unsubscribe);
 		if(unsubscribe && mapID != this.state.mapID)
 		{
 			this.onRoomChange(null); //Leave Room
@@ -71,6 +72,8 @@ class App extends Component {
 				this.socket.emit('joinMap', mapID);
 				
 			}
+
+			console.log("Map change -> " + mapID);
 		}		
 		else
 		{
@@ -126,14 +129,46 @@ class App extends Component {
 		this.setState({
 			roomID: roomID,
 			isJoinedToMap: true
-		});
-			
+		});			
+	}
+
+	toggleUserInfo = (isShow = true, userInfoID) =>
+	{
+		this.setState(prevState => {
+			if(userInfoID != undefined)
+			{
+				return {
+					showUserInfo: isShow,
+					userInfoID: userInfoID
+				}	
+			}
+			else
+			{
+				return{
+					showUserInfo: isShow,
+					userInfoID: prevState.userID
+				}
+			}
+		})
+	}
+
+	toggleHighlightedRoom = (roomID) => 
+	{
+		this.setState({highlightedRoom: roomID});
+		console.log(roomID);
 	}
 
 	render() {
 		return (
 			<div className={styles.App}>				
-				{this.state.showUserInfo && <UserInfo className={styles.UserInfo} />}
+				{this.state.showUserInfo && 
+					<UserInfo 
+						className={styles.UserInfo} 
+						userID={this.state.userInfoID}
+						toggleUserInfo={this.toggleUserInfo}
+						isThisUser={this.state.userID == this.state.userInfoID}
+					/>
+				}
 
 				{this.state.showCreateRoomDialog && 
 					<RoomCreateDialog 
@@ -152,7 +187,13 @@ class App extends Component {
 					>
 						<SideBarCategory title="Server">
 							<ServerList className={styles.ServerList} onMapChange={this.changeMap}/> {/*Move to another server*/}
-							<RoomList className={styles.RoomList}/>
+							{console.log("MAAAP IDDDD: " + this.state.mapID)}
+							<RoomList 
+								className={styles.RoomList}
+								mapID={this.state.mapID} 
+								socket={this.socket}
+								toggleHighlightedRoom={this.toggleHighlightedRoom}
+							/>
 						</SideBarCategory>
 						<SideBarCategory title="Friends">
 							<FriendList className={styles.FriendList}/>
@@ -164,12 +205,14 @@ class App extends Component {
 					<div className={styles.mapContainer}>
 						<Map 
 							className={styles.Map} 
-							id="Map" 
+							id={styles.Map} 
 							socket={this.socket} 
 							userID={this.state.userID}
 							mapID={this.state.mapID} 
 							onRoomChange={this.onRoomChange}
 							isEditMode={this.state.isEditMode}
+							toggleUserInfo={this.toggleUserInfo}
+							highlightedRoom={this.state.highlightedRoom}
 						/>								
 					</div>
 					
@@ -186,8 +229,8 @@ class App extends Component {
 							className={styles.Chat} 
 							id={styles.publicChat} 
 							socket={this.socket} 
-							mapID={`${this.state.mapID}`}
-							roomID={`${this.state.roomID}`}
+							mapID={this.state.mapID}
+							roomID={this.state.roomID}
 						/>
 					
 					</div>

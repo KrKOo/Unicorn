@@ -173,8 +173,21 @@ export default class SocketManager {
             this.db.query(
                 `INSERT INTO message (text, sent_at, server_id, room_id, user_id) VALUES (?, NOW(), ?, ?, ?)`, 
                     [data.text, data.mapID, data.roomID, userID])
-            .then(() => 
+            .then((result) => 
             {
+                return this.db.query(`SELECT DATE_FORMAT(message.sent_at,'%d.%m.%Y %H:%i') as sent_at, user.profileImg
+                                    FROM message 
+                                    LEFT JOIN user ON user.id = message.user_id
+                                    WHERE message.id=?`, [result.insertId]);
+            })
+            .then((result) =>
+            {
+                if(result[0] != undefined)
+                {
+                    data.sent_at = result[0].sent_at;
+                    data.profileImg = result[0].profileImg;
+                }
+
                 if(data.roomID !== undefined)
                 {
                     this.io.in(`room${data.roomID}`).emit('message', data);
@@ -183,9 +196,6 @@ export default class SocketManager {
                 {
                     this.io.in(`map${data.mapID}`).emit('message', data);
                 }
-                
-            
-                console.log(data);
             })
             .catch(err => {
                 console.log(err);
@@ -229,7 +239,11 @@ export default class SocketManager {
                         VALUES ((SELECT id FROM user WHERE username=?), ?, ?) ON DUPLICATE KEY UPDATE server_id=?, position=?`, 
                         [username, data.mapID, data.position, data.mapID, data.position])                       
                 })
-                .then(() => {
+                .then(() =>{
+                    return this.db.query(`SELECT profileImg FROM user WHERE id=?`, [userID]) 
+                })
+                .then((result) => {
+                    data.profileImg = result[0].profileImg;
                     data.username = username;
                     data.userID = userID;
                     console.log(data);
@@ -290,12 +304,13 @@ export default class SocketManager {
             var decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, {algorithm: ['HS256']}); 
             var userID = decodedToken.userID;
 
-            this.db.query(`SELECT room.id, room.background FROM room WHERE room.user_id=? AND room.server_id=?`, [userID, data.mapID])
+            this.db.query(`SELECT room.id, room.background, room.name FROM room WHERE room.user_id=? AND room.server_id=?`, [userID, data.mapID])
             .then(result => {
                 if(result[0] != undefined)
                 {
                     data.roomID = result[0].id;
                     data.background = result[0].background;
+                    data.roomName = result[0].name;
                     return this.db.query("SELECT room_id FROM field WHERE id = ? AND server_id = ?", 
                         [data.cell, data.mapID])
                 }
@@ -307,8 +322,10 @@ export default class SocketManager {
             .then(result => {
                 if(result[0] === undefined) //The field is not owned by anyone
                 {
-                    return this.db.query("INSERT INTO field (id, room_id, server_id) VALUES (?, ?, ?)",
-                        [data.cell, data.roomID, data.mapID]);
+                    return this.db.query(`INSERT INTO field (id, room_id, server_id)
+                        SELECT ?, ?, ?
+                        WHERE (SELECT COUNT(*) FROM field WHERE room_id=?) < ?`,
+                        [data.cell, data.roomID, data.mapID, data.roomID, 5]);
                 }
                 else if(result[0].room_id == data.roomID)  //The room is owned by this user
                 {
@@ -321,9 +338,13 @@ export default class SocketManager {
                     throw 'The cell does not belong to the user';
                 }                
             })
-            .then(() => {
-                console.log(data);
-                this.io.in(`map${data.mapID}`).emit('roomEdit', data);
+            .then((result) => {
+                console.log(result);
+                if(result.affectedRows != 0)
+                {
+                    this.io.in(`map${data.mapID}`).emit('roomEdit', data);
+                }
+                
             })
             .catch(err => {
                 console.log(err);
