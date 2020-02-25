@@ -8,6 +8,8 @@ export default class SocketManager {
         this.io = io;
         this.db = new Database();
 
+        this.setup();
+
         this.io.on('connection', (socket) => {            
             socket.on('setup', () => {
                 this.connect(socket);
@@ -37,13 +39,18 @@ export default class SocketManager {
                 this.move(socket, data);
             });
 
-            socket.on('roomCreate', async data => {
-                this.roomCreate(socket, data);
+            socket.on('roomManage', async data => {
+                this.roomManage(socket, data);
             });
 
             socket.on('roomEdit', async data => {
                 this.roomEdit(socket, data);
             });
+
+            socket.on('manageFriend', async data => {
+                this.manageFriend(socket, data);
+            });
+
 
             socket.on('disconnect', () => {
                 this.disconnect(socket);
@@ -51,6 +58,14 @@ export default class SocketManager {
 
 
         })
+    }
+
+    setup()
+    {
+        this.db.query(`TRUNCATE user_position`)
+        .catch(err => {
+            console.log(err);
+        });
     }
 
     connect(socket)
@@ -170,15 +185,27 @@ export default class SocketManager {
 
             data.username = decodedToken.username;
 
-            this.db.query(
-                `INSERT INTO message (text, sent_at, server_id, room_id, user_id) VALUES (?, NOW(), ?, ?, ?)`, 
-                    [data.text, data.mapID, data.roomID, userID])
+            this.db.query(`INSERT INTO message (text, sent_at, server_id, room_id, user_id)
+                            SELECT ?, NOW(), ?, ?, ?
+                            FROM room
+                            WHERE (room.save_messages=1 AND room.id = ?) OR (? IS NULL) LIMIT 1`, 
+                            [data.text, data.mapID, data.roomID, userID, data.roomID, data.roomID])
             .then((result) => 
             {
-                return this.db.query(`SELECT DATE_FORMAT(message.sent_at,'%d.%m.%Y %H:%i') as sent_at, user.profileImg
-                                    FROM message 
-                                    LEFT JOIN user ON user.id = message.user_id
-                                    WHERE message.id=?`, [result.insertId]);
+                console.log(result);
+                if(result.affectedRows)
+                {
+                    return this.db.query(`SELECT DATE_FORMAT(message.sent_at,'%d.%m.%Y %H:%i') as sent_at, user.profileImg
+                                            FROM message 
+                                            LEFT JOIN user ON user.id = message.user_id
+                                            WHERE message.id=?`, [result.insertId]);
+                }
+                else
+                {
+                    return this.db.query(`SELECT DATE_FORMAT(NOW(),'%d.%m.%Y %H:%i') as sent_at, user.profileImg
+                                            FROM user WHERE id = ? `, [userID]);
+                }
+                
             })
             .then((result) =>
             {
@@ -188,7 +215,7 @@ export default class SocketManager {
                     data.profileImg = result[0].profileImg;
                 }
 
-                if(data.roomID !== undefined)
+                if(data.roomID != undefined)
                 {
                     this.io.in(`room${data.roomID}`).emit('message', data);
                 }
@@ -258,7 +285,7 @@ export default class SocketManager {
         }
     }
 
-    roomCreate(socket, data)
+    roomManage(socket, data)
     {
         const roomName = data.roomName;
         const mapID = data.mapID;
@@ -281,16 +308,21 @@ export default class SocketManager {
         })
 
         hashPassword.then(hashedPassword => {
-            return this.db.query('INSERT INTO room (name, background, password, save_messages, server_id, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
-            [roomName, roomBackground, hashedPassword, saveMessages, mapID, userID])
+            return this.db.query(`INSERT INTO room (name, background, password, save_messages, server_id, user_id) 
+                                VALUES (?, ?, ?, ?, ?, ?) 
+                                ON DUPLICATE KEY UPDATE name = ?, background = ?, save_messages = ?`,
+            [roomName, roomBackground, hashedPassword, saveMessages, mapID, userID, roomName, roomBackground, saveMessages]);
         })        
         .then((result) => 
         {
+            console.log(result)
             const resData = {
                 roomID: result.insertId,
-                background: roomBackground
+                background: roomBackground,
+                name: roomName,
+                saveMessages: saveMessages
             }
-            this.io.in(`map${data.mapID}`).emit('roomCreate', resData);
+            this.io.in(`map${data.mapID}`).emit('roomManage', resData);
         })
         .catch(err => {
             console.log(err);

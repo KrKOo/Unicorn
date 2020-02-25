@@ -1,46 +1,60 @@
 import React, { Component } from "react";
-
+import axios from 'axios';
 import styles from './FriendList.module.scss'
 
 class FriendList extends Component {
 
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
+			friends:[]
         }
 	}
 	componentDidMount() {
-		
-    }
+		console.log(this.props.userID)
+		this.getFriends();
+	}
+
+	componentDidUpdate(prevProps)
+	{
+		if(prevProps.userID !== this.props.userID)
+		{
+			this.getFriends();
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		console.log(nextProps);
+	}
+
+	getFriends = () =>
+	{
+		const self = this;
+		axios.get(`/users/getFriends`)
+		.then(function (response) {
+			self.setState({friends: response.data}) ;
+		})
+		.catch(function (error) {
+			console.log(error);
+		})
+	}
 
 	render() {
+		console.log(this.props.userID)
 		return (
-            <div>
+            <div key={this.props.userID}>
                 <ul className={styles.userList}>
-					<li>
-						<div className={styles.imageContainer}>
-							<img src="https://style.anu.edu.au/_anu/4/images/placeholders/person_8x10.png"></img>
-						</div>
-						<div className={styles.usernameContainer}>
-							<p>Bob Smith</p>
-						</div>						
-					</li>
-					<li>
-						<div className={styles.imageContainer}>
-							<img src="https://style.anu.edu.au/_anu/4/images/placeholders/person_8x10.png"></img>
-						</div>
-						<div className={styles.usernameContainer}>
-							<p>John Carpenter</p>
-						</div>						
-					</li>
-					<li>
-						<div className={styles.imageContainer}>
-							<img src="https://style.anu.edu.au/_anu/4/images/placeholders/person_8x10.png"></img>
-						</div>
-						<div className={styles.usernameContainer}>
-							<p>Ross Geller</p>
-						</div>						
-					</li>
+					{this.state.friends.map((item, i) => {
+						return(
+						<li key={i} userid={item.userID}>
+							<div className={styles.imageContainer}>
+								<img src={`/profileImages/${item.profileImg || 'profilePlaceholder.jpg'}`}></img>
+							</div>
+							<div className={styles.usernameContainer}>
+								<p>{item.username}</p>
+							</div>						
+						</li>)
+					})}
 				</ul>
             </div>
         )

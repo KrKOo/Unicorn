@@ -25,7 +25,7 @@ class Chat extends Component{
         //this.socket.emit('join', this.props.mapID);
         this.socket.on('message', (data) => {
             
-            if(data.roomID == this.props.roomID && data.mapID == this.props.mapID)
+            if(data.roomID === this.props.roomID && data.mapID === this.props.mapID)
             {
                 console.log(data);
                 this.setState(prevState => {
@@ -85,8 +85,8 @@ class Chat extends Component{
     render() {
         return <div className={`${styles.Chat} ${this.props.className}`} id={this.props.id} style={this.props.style}>
             <ul className={`chatMessages ${styles.messages}`}>
-                {this.state.chatHistory.map(message =>
-                    <li>                    
+                {this.state.chatHistory.map((message, index) =>
+                    <li key={index}>                    
                         <div className={styles.flexImage}>
                             <img src={`/profileImages/${message.profileImg}`} className={styles.profileImg}/>
                         </div>

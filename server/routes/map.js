@@ -9,14 +9,12 @@ const database = new dba();
 
 router.get('/', (req, res, next) => {   //get all servers
     database.query('SELECT id, name, size FROM server')
-        .then(result => {
-            res.send(result);
-        })
-        .catch(err => {
-            console.log(err);
-        })
-
-    
+    .then(result => {
+        res.send(result);
+    })
+    .catch(err => {
+        console.log(err);
+    })   
 });
 
 router.get('/getRooms/:id', (req, res, next) => {
@@ -27,7 +25,33 @@ router.get('/getRooms/:id', (req, res, next) => {
     .then(result => {
         res.send(result);
     })    
+    .catch(err => {
+        console.log(err);
+    })
 });
+
+router.get('/getRoomSettings/:mapID', (req, res, next) => {
+    const mapID = req.params.mapID;
+
+    try {
+		const cookies = cookie.parse(req.headers.cookie);
+		const decodedToken = jwt.verify(cookies.token, process.env.TOKEN_SECRET, { algorithm: ['HS256'] });
+		var userID = decodedToken.userID;
+    
+        database.query(`SELECT id, name, background, save_messages FROM room 
+                        WHERE server_id = ? AND user_id = ?`, [mapID, userID])
+        .then(result => {
+            res.send(result[0]);
+        })    
+        .catch(err => {
+            console.log(err);
+        })
+    }catch(err)
+    {
+        console.log(err);
+    }
+});
+
 
 
 router.get('/get/:id', (req, res, next) => {   //get the map by ID
@@ -41,7 +65,7 @@ router.get('/get/:id', (req, res, next) => {   //get the map by ID
                     UNION
                     SELECT user_position.position, user_position.server_id, null, user_position.user_id, room.background, user.username, user.profileImg
                     FROM user_position
-                    LEFT JOIN room ON room.id = (SELECT field.room_id FROM field WHERE field.id = user_position.position)
+                    LEFT JOIN room ON room.id = (SELECT field.room_id FROM field WHERE field.id = user_position.position AND field.server_id = user_position.server_id)
                     LEFT JOIN user ON user.id = user_position.user_id
                     WHERE user_position.server_id = ?`, [mapID, mapID])
     .then(result => {

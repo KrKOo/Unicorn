@@ -26,7 +26,7 @@ class ServerList extends Component {
 	{
 		const {className} = e.target;
 
-		if(className == "mapName")
+		if(className === "mapName")
 		{
 			this.props.onMapChange(e.target.getAttribute("mapID"), true);
 		}
@@ -34,12 +34,21 @@ class ServerList extends Component {
 
 	render() {
 		return (
-            <div className={`${this.props.className}`}>
+            <div className={`${this.props.className} ${styles.ServerList}`}>
 				<h3>Server List</h3>
                 <ul>
 					{this.state.serverList.map(server => {
 						return (
-							<li key={server.id} mapid={server.id} className="mapName" onClick={this.handleClick}>{server.name}</li>
+							<li 
+								key={server.id} 
+								mapid={server.id} 
+								className="mapName" 
+								onClick={this.handleClick}
+								style={(server.id == this.props.mapID)?{color: "#16c24f",fontWeight: 800}:{}}
+								title={server.name}
+								>
+								{server.name}
+							</li>
 						);
 					})}
 				</ul>

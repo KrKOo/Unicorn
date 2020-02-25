@@ -9,6 +9,17 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    h3
+    {
+        color: $primaryColor;
+        font-size: 13px;
+        text-transform: uppercase;
+        padding: 5px 10px;
+        border-bottom: 1px solid $gray;
+    }
 
     .sideBarButton
     {
@@ -61,6 +72,8 @@
     {
         height: 100%;
         overflow: auto;
+        display: flex;
+        flex-direction: column;
     }
     
     footer
@@ -95,4 +108,8 @@
     }
 
     
+
+    
 }
+
+

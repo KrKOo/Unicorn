@@ -15,14 +15,55 @@ class RoomList extends Component {
 
 	}
 	componentDidMount() {
+		this.socket.on('roomEdit', (data) => {
+			console.log(data);            
+
+			this.setState(prevState => {
+				let newRoomList = prevState.roomList;
+				if(!data.isDelete)
+				{
+					if (!newRoomList.some(e => e.id === data.roomID)) {
+						newRoomList.push({
+							id: data.roomID,
+							name: data.roomName
+						});
+					}
+				}
+				else
+				{
+					
+				}
+				console.log(newRoomList);
+				return({roomList:newRoomList});
+			});
+		});
+
+		this.socket.on('roomManage', (data) => {
+            console.log(data);
+            this.setState(prevState => {
+                let newRoomList = prevState.roomList.map(room => {
+                    if(room.id === data.roomID)
+                    {
+                        room.name = data.name;
+                        
+                    }
+                    return room;
+                })
+                return({
+                    roomList: newRoomList
+                })
+                
+            })
+        });
+	
+
 		this.getRooms();
 	}
 
 	componentDidUpdate(prevProps)
 	{
-		console.log("UPDATEEEEEEEE");
-		if(prevProps.mapID != this.props.mapID)
-		{
+		if(prevProps.mapID !== this.props.mapID)
+		{			
 			
 			this.getRooms();
 		}
@@ -39,35 +80,14 @@ class RoomList extends Component {
 				console.log(error);
 			})
 
-			this.socket.on('roomEdit', (data) => {
-				console.log(data);            
-	
-				this.setState(prevState => {
-					let newRoomList = prevState.roomList;
-					if(!data.isDelete)
-					{
-						if (!newRoomList.some(e => e.id === data.roomID)) {
-							newRoomList.push({
-								id: data.roomID,
-								name: data.roomName
-							});
-						}
-					}
-					else
-					{
-						
-					}
-					console.log(newRoomList);
-					return({roomList:newRoomList});
-				})
-			});
+			
 	}
 	
 	handleClick = (e) => 
 	{
 		const clickedRoom = e.currentTarget.getAttribute('roomid')
 		this.setState(prevState => {
-			const highlighted = (prevState.highlighted == clickedRoom) ? undefined : clickedRoom;
+			const highlighted = (prevState.highlighted === clickedRoom) ? undefined : clickedRoom;
 			this.props.toggleHighlightedRoom(highlighted);
 			return ({
 				highlighted: highlighted
@@ -79,12 +99,21 @@ class RoomList extends Component {
 	render() {
 		console.log("MAP ID: " + this.props.mapID);
 		return (
-            <div className={`roomList ${this.props.className}`}>
+            <div className={`roomList ${this.props.className} ${styles.RoomList}`}>
                 <h3>Room List</h3>
 				<ul>
 					{this.state.roomList.map(room => {
 						return (
-							<li key={room.id} roomid={room.id} className="mapName" onClick={this.handleClick}>{room.name}</li>
+							<li 
+							key={room.id} 
+							roomid={room.id} 
+							className="mapName" 
+							onClick={this.handleClick}
+							style={(room.id == this.props.highLightedRoom)?{color: "#16c24f", fontWeight: 800}:{}}
+							title={room.name}
+							>
+								{room.name}
+							</li>
 						);
 					})}
 				</ul>

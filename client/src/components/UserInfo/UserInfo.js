@@ -23,7 +23,7 @@ class UserInfo extends Component{
 
     componentDidUpdate(prevProps)
     {
-        if(prevProps.userID != this.props.userID)
+        if(prevProps.userID !== this.props.userID)
         {
             this.getInfo();
             console.log("prev:" + prevProps.userID + " now: " + this.props.userID);
@@ -81,7 +81,7 @@ class UserInfo extends Component{
 
     handleClick = (e) => 
     {
-        if(e.currentTarget.id == "exitButton")
+        if(e.currentTarget.id === "exitButton")
         {
             if(this.props.isThisUser)
             {
@@ -96,7 +96,7 @@ class UserInfo extends Component{
     handleChange = (e) =>
     {
         const {name, value} = e.target;
-        if(name == "profileImg")
+        if(name === "profileImg")
         {
             this.setState({[name]:e.target.files[0]});
             this.updateProfileImg(e.target.files[0]);
@@ -116,14 +116,14 @@ class UserInfo extends Component{
                     <button className={styles.exitButton} onClick={this.handleClick} id="exitButton"><i className="fas fa-times fa-2x"></i></button>
                     <label>
                         <input type="file" name="profileImg" onChange={this.handleChange} style={{display: "none"}}/>
-                        <img src={`/profileImages/${this.state.profileImg}`}/>
+                        <img src={`/profileImages/${this.state.profileImg || 'profilePlaceholder.jpg'}`} alt="Profile Picture"/>
                     </label>
                     
                     <p className={styles.username}>{this.state.username}</p>
                 </header>
                 <article>
                     {this.props.isThisUser 
-                    ?<textarea placeholder="Edit your description" onChange={this.handleChange} name="description" value={this.state.description}></textarea>
+                    ?<textarea placeholder="Edit your description" onChange={this.handleChange} name="description" value={this.state.description || ""}></textarea>
                     :<p>{this.state.description}</p>}
                 </article>
             </div>

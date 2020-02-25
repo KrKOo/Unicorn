@@ -15,7 +15,7 @@
    
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: $secondaryDark; 
+    background: $primaryColor; 
     border-radius: 5px;
   }
   
@@ -39,7 +39,7 @@
 
     .UserInfo
     {
-        z-index: 9;
+        z-index: 10;
         position: absolute;
         top: 50%;
         left: 50%;
@@ -63,7 +63,7 @@
     .SideBar
     {
         background: $primaryDark;
-        min-width: 220px;
+        width: 250px;
         height: 100vh;
         left: 0;
         resize: both;

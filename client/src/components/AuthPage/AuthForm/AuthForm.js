@@ -70,7 +70,11 @@ class AuthForm extends Component {
                 if(res.data.error)
                 {
                     console.log(res.data.error);
-                    this.setState({error: res.data.error.errno});
+                    this.setState({error: res.data.error});
+                }
+                else
+                {
+                    this.props.history.push("/");
                 }
             })
             .catch(err => {
@@ -91,7 +95,7 @@ class AuthForm extends Component {
                 
                 if(res.data.error)
                 {
-                    this.setState({error: res.data.error.errno});
+                    this.setState({error: res.data.error});
                 }
                 else
                 {

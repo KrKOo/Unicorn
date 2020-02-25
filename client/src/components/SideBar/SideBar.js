@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 
 import styles from './SideBar.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 
 class SideBar extends Component {
 
@@ -10,27 +8,28 @@ class SideBar extends Component {
 		super();
 		this.state = {
 			visible: true,
-			isEditMode: false
+			isEditMode: false,
+			sideBarContent: 'server'
 		}
 	}
 
 	handleClick = (e) => 
 	{
-		if(e.currentTarget.className == 'navButton')
+		if(e.currentTarget.className === 'navButton')
 		{
-			let sideBarContent = this.props.children[e.target.dataset.key];
 
-			this.setState({sideBarContent:sideBarContent});
+
+			this.setState({sideBarContent:e.target.dataset.key});
 		}
-		else if(e.currentTarget.id == 'mapModeButton')
+		else if(e.currentTarget.id === 'mapModeButton')
 		{
 			this.props.onMapModeToggle();
 		}
-		else if(e.currentTarget.id == 'mapCreateButton')
+		else if(e.currentTarget.id === 'mapCreateButton')
 		{
 			this.props.onCreateRoomToggle();			
 		}
-		else if(e.currentTarget.id == 'leaveMapButton')
+		else if(e.currentTarget.id === 'leaveMapButton')
 		{
 			this.props.onLeave(null, false);
 		}
@@ -49,16 +48,7 @@ class SideBar extends Component {
 
 	componentDidMount()
 	{
-		let navList = [];
-		this.props.children.forEach((element, key) =>
-		{
-			navList.push(<li key={key} data-key={key} onClick={this.handleClick} className="navButton">{element.props.title}</li>)
-		});
 
-		this.setState({
-			sideBarContent: this.props.children[1],
-			navList:navList
-		});
 	}
 
 	render() {
@@ -69,37 +59,39 @@ class SideBar extends Component {
 				id="sideBar" 
 				style={{left:(this.state.visible ? '0px' : -document.getElementById('sideBar').clientWidth)}}>
 
-					{(this.props.toggle == 'true') && 
+					{(this.props.toggle === 'true') && 
 						<button className={`${styles.sideBarButton} ${(this.state.visible) ? '' : styles.right}`} onClick={this.toggleSideBar}><i class="fas fa-chevron-left fa-2x"></i></button>
 					}
 					
 					<ul className={styles.navigation}>
-						{this.state.navList}
+						<li data-key="server" onClick={this.handleClick} className="navButton">Servers</li>
+						<li data-key="friends" onClick={this.handleClick} className="navButton">Friends</li>
 					</ul>
+
 					<div className={styles.content}>
-						{this.state.sideBarContent}
+						{this.props[this.state.sideBarContent]}
 					</div>
 
 					<footer>
 						<button 
 							id="leaveMapButton"
 							onClick={this.handleClick}>
-								<i class="fas fa-phone-slash"></i>
+								<i className="fas fa-phone-slash"></i>
 						</button>
 						<button 
 							id="settingsButton"
 							onClick={this.handleClick}>
-								<i class="fas fa-cog"></i>
+								<i className="fas fa-cog"></i>
 						</button>
 						<button 
 							id="mapModeButton" 
 							onClick={this.handleClick}>
-								<i class="fas fa-edit"></i>
+								<i className="fas fa-edit"></i>
 						</button>
 						<button
 							id="mapCreateButton"
 							onClick={this.handleClick}>
-								<i class="far fa-plus-square"></i>
+								<i className="far fa-plus-square"></i>
 						</button>
 						
 					</footer>

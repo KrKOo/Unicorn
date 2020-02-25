@@ -10,7 +10,6 @@ import RoomList from '../RoomList/RoomList';
 import ServerList from '../ServerList/ServerList';
 import FriendList from '../FriendList/FriendList';
 import SideBar from '../SideBar/SideBar';
-import SideBarCategory from '../SideBar/SideBarCategory';
 import UserInfo from '../UserInfo/UserInfo';
 import RoomCreateDialog from '../RoomCreateDialog/RoomCreateDialog';
 import AlertBox from '../AlertBox/AlertBox';
@@ -32,11 +31,14 @@ class App extends Component {
 			userInfoID: null,
 			showCreateRoomDialog: false,
 			alertText: '',
-			highlightedRoom: undefined
+			highlightedRoom: undefined,
 		}
 		this.sideBar = React.createRef();
 		this.socket = openSocket('http://localhost:9000');
 
+		
+	}
+	componentDidMount() {
 		this.socket.on('setup', data => {
 			this.setState({userID:data.userID});
 		});
@@ -44,11 +46,6 @@ class App extends Component {
 		this.socket.emit('setup');		
 
 		this.socket.emit('joinMap', this.state.mapID);
-		this.setState({isJoindedToMap: true});
-		
-	}
-	componentDidMount() {
-
 	}
 
 	onSideBarToggle = (state) => 
@@ -67,7 +64,7 @@ class App extends Component {
 			{		
 				this.setState({
 					mapID: mapID,
-					isJoinedToMap: true
+					isJoinedToMap: false
 				});
 				this.socket.emit('joinMap', mapID);
 				
@@ -166,7 +163,7 @@ class App extends Component {
 						className={styles.UserInfo} 
 						userID={this.state.userInfoID}
 						toggleUserInfo={this.toggleUserInfo}
-						isThisUser={this.state.userID == this.state.userInfoID}
+						isThisUser={this.state.userID === this.state.userInfoID}
 					/>
 				}
 
@@ -184,21 +181,32 @@ class App extends Component {
 					onMapModeToggle={this.mapModeChange} 
 					onCreateRoomToggle={this.createRoomToggle}
 					onLeave={this.changeMap} //Stay on the same server but leave the MAP
-					>
-						<SideBarCategory title="Server">
-							<ServerList className={styles.ServerList} onMapChange={this.changeMap}/> {/*Move to another server*/}
-							{console.log("MAAAP IDDDD: " + this.state.mapID)}
+						server= {
+							<div style={{height: '100%', width: '100%'}}>
+							<ServerList 
+								className={styles.ServerList} 
+								onMapChange={this.changeMap}
+								mapID={this.state.mapID}
+							/>
 							<RoomList 
 								className={styles.RoomList}
 								mapID={this.state.mapID} 
 								socket={this.socket}
+								highLightedRoom={this.state.highlightedRoom}
 								toggleHighlightedRoom={this.toggleHighlightedRoom}
 							/>
-						</SideBarCategory>
-						<SideBarCategory title="Friends">
-							<FriendList className={styles.FriendList}/>
-						</SideBarCategory>
+							</div>}
+						friends = {
+							<FriendList 
+								className={styles.FriendList}
+								userID={this.state.userID}
+							/>
+						}
+					>
+					
 				</SideBar>
+
+				
 
 				<div className={styles.middleBar}>
 					<AlertBox className={styles.AlertBox} text={this.state.alertText}/>
@@ -222,7 +230,7 @@ class App extends Component {
 							id={styles.privateChat} 
 							socket={this.socket} 
 							mapID={`${this.state.mapID}`}
-							isDisabled={this.state.isJoinedToMap == false}
+							isDisabled={!this.state.isJoinedToMap}
 						/>
 						<Chat 
 							style={!this.state.roomID ? {display: 'none'} : {}}

@@ -92,7 +92,7 @@ class Map extends Component {
         this.socket.on('move', (data) => {
             console.log(data);
 
-            if(data.userID == this.props.userID)
+            if(data.userID === this.props.userID)
             {
                 if(this.state.map[data.position])
                 {
@@ -124,13 +124,24 @@ class Map extends Component {
             })
         });
 
-        /*this.socket.on('roomCreate', (data) => { //TODO
+        this.socket.on('roomManage', (data) => {
+            console.log(data);
             this.setState(prevState => {
-                let newRoomColors = prevState.roomColors;
-                newRoomColors.push({id: data.roomID, background: data.background});
-                return ({roomColors: newRoomColors});
+                let newMap = prevState.map.map(cell => {
+                    if(cell.room_id === data.roomID)
+                    {
+                        cell.background = data.background;
+                        
+                    }
+                    return cell;
+                })
+                console.log(newMap);
+                return({
+                    map: newMap
+                })
+                
             })
-        });*/
+        });
 
         this.socket.on('roomEdit', (data) => {
             console.log(data);            
@@ -151,7 +162,7 @@ class Map extends Component {
                     newMap[data.cell].room_id = data.roomID;
                 }                
 
-                if(newMap[data.cell].user_id == this.props.userID)
+                if(newMap[data.cell].user_id === this.props.userID)
                 {
                     this.props.onRoomChange(newMap[data.cell].room_id);
                 }
@@ -222,7 +233,9 @@ class Map extends Component {
                                 userID={(this.state.map[cellID])&&this.state.map[cellID].user_id}
                                 username={(this.state.map[cellID])&&this.state.map[cellID].username}
                                 profileImg={(this.state.map[cellID])&&this.state.map[cellID].profileImg}
-                                toggleUserInfo={this.props.toggleUserInfo}                                
+                                toggleUserInfo={this.props.toggleUserInfo}    
+                                socket={this.socket}    
+                                isThisUser={(this.state.map[cellID])&&this.state.map[cellID].user_id === this.props.userID}                        
                             />
                         }
                         onDoubleClick={this.handleClick}

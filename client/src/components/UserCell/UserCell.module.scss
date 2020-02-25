@@ -74,8 +74,13 @@
     .userName
     {
         padding-top: 7px;
-        font-size: 18px;
+        font-size: 16px;
         color: white;
         text-shadow: #000 0px 0px 3px;
+        text-align: center;
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
 }

@@ -27,7 +27,17 @@ class UserCell extends Component{
         }
         else if(e.currentTarget.className.includes('friendButton'))
         {
-
+            const data = {
+                friendID: this.props.userID,
+                isAdd: true
+            }
+            axios.post('/users/manageFriend', data, {headers: {'Content-Type': 'application/json'}})
+            .then(async res => {                
+                console.log(res);
+            })
+            .catch(err => {
+                console.error(err);
+            });
         }
     }
 
@@ -37,14 +47,16 @@ class UserCell extends Component{
                 {(this.props.userID) && 
                     <div className={styles.container}>
                         <div className={styles.menuContainer}>
-                            <button className={styles.menuButton}><i class="fas fa-ellipsis-h"></i></button>
+                            <button className={styles.menuButton}><i className="fas fa-ellipsis-h"></i></button>
                             <ul className={styles.menu}>
                                 <li onClick={this.handleClick} className="profileButton">Profile</li>
-                                <li onClick={this.handleClick} className="friendButton">Add Friend</li>
+                                {!this.props.isThisUser &&
+                                    <li onClick={this.handleClick} className="friendButton">Add Friend</li>
+                                }
                             </ul>
                         </div>
                         <img src={`/profileImages/${this.props.profileImg || "profilePlaceholder.jpg"}`} className={styles.profileImg}/>
-                        <p className={styles.userName}>{this.props.username}</p>
+                        <p className={styles.userName} title={this.props.username}>{this.props.username}</p>
                     </div>
                 }
                 
